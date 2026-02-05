@@ -208,7 +208,7 @@ const LoginPage = () => {
                     </div>
                     <button
                         type="submit"
-                        className="text-white rounded-xl relative group hover:-translate-y-0.5 transition-all ease-in-out"
+                        className="text-white rounded-xl relative group hover:-translate-y-0.5 transition-all ease-in-out hover:cursor-pointer"
                     >
                         <div className="absolute bg-accent/60 blur-xl w-full h-full group-hover:blur-lg transition-all ease-in-out" />
                         <div className="relative z-20 font-bold bg-accent rounded-xl py-2">
