@@ -13,11 +13,10 @@ A digital boarding management system designed for veterinary clinic nurses to tr
 
 ## Tech Stack
 
-- **Framework**: Next.js 14 (App Router)
+- **Framework**: Next.js (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
-- **Database**: SQLite with Drizzle ORM
-- **State Management**: React Hook Form + Zod
+- **Database**: PostgreSQL with Drizzle ORM
 
 ## Getting Started
 
@@ -25,6 +24,7 @@ A digital boarding management system designed for veterinary clinic nurses to tr
 
 - Node.js 18.x or higher
 - npm, yarn, pnpm, or bun
+- Docker (for PostgreSQL)
 
 ### Installation
 
@@ -38,36 +38,17 @@ cd mvc-boarding-tool
 # Install dependencies
 npm install
 
-# Set up the database
-npx prisma db push
+# Start the PostgreSQL database
+docker-compose up -d
+
+# Push schema changes to database
+npx drizzle-kit push
 
 # Start development server
 npm run dev
 ```
 
 The application will be available at `http://localhost:3000`.
-
-### Database Setup
-
-**Using Docker (recommended for development):**
-
-```bash
-# Start the PostgreSQL test database
-docker-compose up -d
-
-# Run migrations
-npm run db:push
-
-# Seed the database (if applicable)
-npm run db:seed
-```
-
-**Local SQLite (no Docker):**
-
-```bash
-# Push schema to local SQLite database
-npm run db:push
-```
 
 ### Database Commands
 
@@ -76,52 +57,37 @@ npm run db:push
 docker-compose up -d
 
 # Push schema changes to database
-npm run db:push
-
-# Open Drizzle Studio
-npm run db:studio
+npx drizzle-kit push
 
 # Generate a new migration
-npm run db:generate
+npx drizzle-kit generate
+
+# Open Drizzle Studio GUI
+npx drizzle-kit studio
 ```
 
 ## Project Structure
 
 ```
-src/
-├── app/                    # Next.js App Router pages and layouts
-├── components/             # Reusable UI components
-├── lib/                    # Utility functions and configurations
-├── db/                     # Database schema and migrations (Drizzle)
-└── types/                  # TypeScript type definitions
+app/                    # Next.js App Router pages and layouts
+  layout.tsx            # Root layout
+  page.tsx              # Home page
+  login/                # Login route
+components/             # Reusable React components
+utils/db/               # Database schema and connection
+  schema.ts
+  drizzle.ts
+  getDbConnString.ts
+drizzle.config.ts       # Drizzle configuration
 ```
-
-## Usage
-
-### Checking In a Dog
-1. Click "Add Dog" button
-2. Enter dog name, breed, age, and owner information
-3. Add any special instructions or care requirements
-4. Confirm to check in the dog
-
-### Updating Status
-1. Select a dog from the dashboard
-2. Choose a new status from the status dropdown
-3. Add optional notes if needed
-4. Status updates immediately for all users
-
-### Logging Activities
-1. Click on a dog's card to view details
-2. Navigate to the Activity Log section
-3. Select activity type (feeding, walk, medication, etc.)
-4. Enter details and save
 
 ## Environment Variables
 
-Create a `.env.local` file in the root directory:
+Create a `.env` file in the root directory:
 
 ```env
-DATABASE_URL="file:./dev.db"
+# PostgreSQL connection string (from docker-compose)
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/mvc_boarding"
 ```
 
 ## Learn More
