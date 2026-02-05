@@ -6,7 +6,7 @@ export default function Home() {
     return (
         <div className="min-h-screen w-full">
             <LandingNav />
-            <div className="h-screen py-20 px-10 flex flex-col md:grid md:grid-cols-12 justify-center items-start gap-8">
+            <div className="min-h-screen py-20 px-10 flex flex-col md:grid md:grid-cols-12 justify-center items-start gap-8">
                 <div className="col-span-7 flex flex-col items-center md:items-start justify-center gap-4 h-full text-center md:text-start">
                     <div className="bg-accent/10 border text-accent border-accent/30 flex items-center justify-center px-4 py-2 rounded-full text-xs gap-4 font-semibold">
                         <div className="rounded-full p-1 bg-accent"></div>
@@ -37,8 +37,12 @@ export default function Home() {
                         </button>
                     </Link>
                 </div>
-                <div className="flex flex-col items-center justify-center h-full w-full col-span-5">
-                    <img src={"/assets/LandingPageImageOriginal.jpg"} alt="Doggo" className="rounded-full shadow-xl"/>
+                <div className="flex flex-col items-center justify-center h-full w-full col-span-5 py-10">
+                    <img
+                        src={"/assets/LandingPageImageOriginal.jpg"}
+                        alt="Doggo"
+                        className="rounded-full shadow-xl h-[80%] md:h-[60%]"
+                    />
                 </div>
             </div>
             <div className="w-full flex-col items-center justify-center gap-10">
