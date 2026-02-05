@@ -16,7 +16,7 @@ A digital boarding management system designed for veterinary clinic nurses to tr
 - **Framework**: Next.js 14 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
-- **Database**: SQLite with Prisma ORM
+- **Database**: SQLite with Drizzle ORM
 - **State Management**: React Hook Form + Zod
 
 ## Getting Started
@@ -49,12 +49,40 @@ The application will be available at `http://localhost:3000`.
 
 ### Database Setup
 
-```bash
-# Generate Prisma client
-npx prisma generate
+**Using Docker (recommended for development):**
 
-# View database in Prisma Studio
-npx prisma studio
+```bash
+# Start the PostgreSQL test database
+docker-compose up -d
+
+# Run migrations
+npm run db:push
+
+# Seed the database (if applicable)
+npm run db:seed
+```
+
+**Local SQLite (no Docker):**
+
+```bash
+# Push schema to local SQLite database
+npm run db:push
+```
+
+### Database Commands
+
+```bash
+# Start PostgreSQL via Docker
+docker-compose up -d
+
+# Push schema changes to database
+npm run db:push
+
+# Open Drizzle Studio
+npm run db:studio
+
+# Generate a new migration
+npm run db:generate
 ```
 
 ## Project Structure
@@ -64,7 +92,7 @@ src/
 ├── app/                    # Next.js App Router pages and layouts
 ├── components/             # Reusable UI components
 ├── lib/                    # Utility functions and configurations
-├── prisma/                 # Database schema and migrations
+├── db/                     # Database schema and migrations (Drizzle)
 └── types/                  # TypeScript type definitions
 ```
 
@@ -99,5 +127,5 @@ DATABASE_URL="file:./dev.db"
 ## Learn More
 
 - [Next.js Documentation](https://nextjs.org/docs)
-- [Prisma Documentation](https://www.prisma.io/docs)
+- [Drizzle Documentation](https://orm.drizzle.team/docs)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)

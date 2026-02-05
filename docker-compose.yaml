@@ -1,6 +1,4 @@
 
-
-
 services:
   database:
     image: 'postgres:latest'
