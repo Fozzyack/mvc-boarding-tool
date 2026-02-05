@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function Home() {
     return (
-        <div className="min-h-screen w-full bg-slate-100">
+        <div className="min-h-screen w-full">
             <LandingNav />
             <div className="h-screen py-20 px-10 flex flex-col md:grid md:grid-cols-12 justify-center items-start gap-8">
                 <div className="col-span-7 flex flex-col items-center md:items-start justify-center gap-4 h-full text-center md:text-start">
@@ -38,7 +38,7 @@ export default function Home() {
                     </Link>
                 </div>
                 <div className="flex flex-col items-center justify-center h-full w-full col-span-5">
-                    <img src={"/assets/LandingPageImageOriginal.jpg"} alt="Doggo" className="rounded-full"/>
+                    <img src={"/assets/LandingPageImageOriginal.jpg"} alt="Doggo" className="rounded-full shadow-xl"/>
                 </div>
             </div>
             <div className="w-full flex-col items-center justify-center gap-10">
