@@ -4,15 +4,15 @@ import Link from "next/link";
 
 export default function Home() {
     return (
-        <div className="min-h-screen w-full bg-slate-50">
+        <div className="min-h-screen w-full bg-slate-100">
             <LandingNav />
             <div className="h-screen py-20 px-10 flex flex-col md:grid md:grid-cols-12 justify-center items-start gap-8">
-                <div className="col-span-7 flex flex-col items-start justify-center gap-4 h-full">
+                <div className="col-span-7 flex flex-col items-center md:items-start justify-center gap-4 h-full text-center md:text-start">
                     <div className="bg-accent/10 border text-accent border-accent/30 flex items-center justify-center px-4 py-2 rounded-full text-xs gap-4 font-semibold">
                         <div className="rounded-full p-1 bg-accent"></div>
                         <p>Built for Morely Vet Center</p>
                     </div>
-                    <h1>
+                    <h1 className="text-4xl md:text-5xl">
                         Management that{" "}
                         <span className="bg-linear-to-r text-transparent font-extrabold from-emerald-600 to-accent bg-clip-text">
                             cares
@@ -36,6 +36,9 @@ export default function Home() {
                             Launch Clinic Portal
                         </button>
                     </Link>
+                </div>
+                <div className="flex flex-col items-center justify-center h-full w-full col-span-5">
+                    <img src={"/assets/LandingPageImageOriginal.jpg"} alt="Doggo" className="rounded-full"/>
                 </div>
             </div>
             <div className="w-full flex-col items-center justify-center gap-10">
