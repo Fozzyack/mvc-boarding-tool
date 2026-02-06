@@ -1,5 +1,6 @@
 "use client";
 
+import getBackendUrl from "@/utils/db/getBackendUrl";
 import { useRef, useState } from "react";
 
 const LoginPage = () => {
@@ -12,6 +13,7 @@ const LoginPage = () => {
     });
 
     const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [errorMessage, setErrorMessage] = useState<string>("");
 
     const toggleShowPassword = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
@@ -21,6 +23,38 @@ const LoginPage = () => {
         const value = e.target.value;
         setFormInfo((prev) => ({ ...prev, [e.target.name]: value }));
     };
+
+    const handleLogin = async (e: React.SubmitEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        try {
+            const res = await fetch(`${getBackendUrl()}/api/login`, {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json",
+                },
+                body: JSON.stringify({
+                    email: formInfo.email,
+                    password: formInfo.password,
+                }),
+            });
+            if (!res.ok) {
+                console.log("This$uns???");
+                setErrorMessage(
+                    "There was an error logging you in, please try again later",
+                );
+            } else {
+                const data = await res.json();
+                console.log(data);
+                setErrorMessage("");
+            }
+        } catch (error) {
+            setErrorMessage(
+                "There was an error logging you in, please try again later",
+            );
+            console.error(error);
+        }
+    };
+    console.log("hmmm... ", errorMessage);
 
     return (
         <div className="min-h-screen w-full flex flex-col items-center justify-center md:grid md:grid-cols-2">
@@ -97,11 +131,14 @@ const LoginPage = () => {
                 </div>
             </div>
             <div className="center-within">
-                <form className="flex flex-col space-y-4">
+                <form
+                    onSubmit={handleLogin}
+                    className="flex flex-col space-y-4 w-[360px]"
+                >
                     <h4>Welcome!</h4>
                     <div className="space-y-1">
                         <label className="block" htmlFor="email-input">
-                            Email:
+                            Email or Username:
                         </label>
                         <div
                             onClick={() => emailInput.current?.focus()!}
@@ -215,15 +252,19 @@ const LoginPage = () => {
                             Login
                         </div>
                     </button>
+                    <p
+                        className={`${errorMessage === "" ? "h-0" : "h-10"} text-center text-red-500 transition-all ease-in-out duration-500`}
+                    >
+                        {errorMessage}
+                    </p>
+                    <p className="text-center text-slate-500">
+                        Need access to the system? Contact your{" "}
+                        <span className="text-accent">
+                            Clinic Administrator
+                        </span>{" "}
+                        for assistance.
+                    </p>
                 </form>
-                <p className="mt-8 text-center text-slate-500">
-                    Need access to the system?
-                </p>
-                <p className="text-center text-slate-500">
-                    Contact your{" "}
-                    <span className="text-accent">Clinic Administrator</span>{" "}
-                    for assistance.
-                </p>
             </div>
         </div>
     );
