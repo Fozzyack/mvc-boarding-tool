@@ -1,12 +1,18 @@
 import LandingFeatureCards from "@/components/LandingFeatureCards";
 import LandingNav from "@/components/LandingNav";
+import { getSession } from "@/utils/auth/auth";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
-export default function Home() {
+export default async function Home() {
+    const session = await getSession();
+    if (session) {
+        redirect("/dashboard");
+    }
     return (
         <div className="min-h-screen w-full">
             <LandingNav />
-            <div className="min-h-screen py-20 px-10 flex flex-col md:grid md:grid-cols-12 justify-center items-start gap-8">
+            <div className="min-h-screen pt-28 md:pt-0 px-10 flex flex-col md:grid md:grid-cols-12 justify-center items-start gap-8">
                 <div className="col-span-7 flex flex-col items-center md:items-start justify-center gap-4 h-full text-center md:text-start">
                     <div className="bg-accent/10 border text-accent border-accent/30 flex items-center justify-center px-4 py-2 rounded-full text-xs gap-4 font-semibold">
                         <div className="rounded-full p-1 bg-accent"></div>
@@ -29,7 +35,7 @@ export default function Home() {
                     </p>
                     <Link
                         href="/login"
-                        className="relative group hover:-translate-y-0.5 transition-all ease-in-out w-full"
+                        className="max-w-80 relative group hover:-translate-y-0.5 transition-all ease-in-out w-full"
                     >
                         <div className="absolute w-full bg-accent h-full blur-lg opacity-50 group-hover:opacity-70 transition-all ease-in-out duration-150" />
                         <button className="relative z-20 bg-accent w-full text-white font-bold px-4 py-3 rounded-2xl hover:cursor-pointer">
@@ -37,7 +43,7 @@ export default function Home() {
                         </button>
                     </Link>
                 </div>
-                <div className="flex flex-col items-center justify-center h-full w-full col-span-5 py-10">
+                <div className="flex flex-col items-center justify-center h-full w-full col-span-5">
                     <img
                         src={"/assets/LandingPageImageOriginal.jpg"}
                         alt="Doggo"

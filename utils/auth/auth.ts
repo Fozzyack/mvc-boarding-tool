@@ -1,3 +1,4 @@
+import { tokenName } from "@/constants/auth";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 
@@ -29,7 +30,7 @@ export const verifyToken = async (token: string) => {
 
 export const getSession = async () => {
     const cookieStore = await cookies();
-    const token = cookieStore.get("barkboard")?.value;
+    const token = cookieStore.get(tokenName)?.value;
 
     if (!token) return null;
 

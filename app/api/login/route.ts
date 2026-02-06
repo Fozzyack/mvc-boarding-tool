@@ -5,6 +5,7 @@ import { usersTable } from "@/utils/db/schema";
 import { eq } from "drizzle-orm";
 import { createToken } from "@/utils/auth/auth";
 import { getNodeEnv } from "@/utils/getNodeEnv";
+import { tokenName } from "@/constants/auth";
 
 export const POST = async (req: NextRequest) => {
     const { code, password } = await req.json();
@@ -80,11 +81,8 @@ export const POST = async (req: NextRequest) => {
         );
     }
 
-    const response = NextResponse.json(
-        { msg: "Success" },
-        { status: 200 },
-    );
-    response.cookies.set("barkboard", token, {
+    const response = NextResponse.json({ msg: "Success" }, { status: 200 });
+    response.cookies.set(tokenName, token, {
         httpOnly: true,
         secure: getNodeEnv() === "production",
         sameSite: "lax",
