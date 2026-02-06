@@ -1,13 +1,13 @@
 import { sql } from "drizzle-orm";
-import { timestamp } from "drizzle-orm/pg-core";
-import { boolean, date, pgTable, uuid, varchar } from "drizzle-orm/pg-core";
+import { text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, date, decimal, pgTable, uuid, varchar } from "drizzle-orm/pg-core";
 
 /*
  * Schema information for all the tables.
  */
 
 // Business for which everything belongs to.
-export const busniessTable = pgTable("businesses", {
+export const businessTable = pgTable("businesses", {
     id: uuid().primaryKey().unique().defaultRandom(),
     name: varchar({ length: 255 }).notNull().unique(),
     email: varchar({ length: 255 }).notNull(),
@@ -23,10 +23,43 @@ export const usersTable = pgTable("users", {
     isAdmin: boolean().default(false).notNull(),
     isNew: boolean().default(true).notNull(),
     isActive: boolean().default(true).notNull(),
-    organisationId: uuid().references(() => busniessTable.id),
+    organisationId: uuid().references(() => businessTable.id),
     createdAt: timestamp().notNull().defaultNow(),
     updatedAt: timestamp()
         .notNull()
         .default(sql`(CURRENT_TIMESTAMP)`)
         .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
 });
+
+export const boardersTable = pgTable("boarders", {
+    id: uuid().primaryKey().unique().defaultRandom(),
+    name: varchar({ length: 255 }).notNull(),
+    animalType: varchar({ length: 63 }).notNull(),
+    species: varchar({ length: 63 }).notNull(),
+    dateOfBirth: date(),
+    weight: decimal({ precision: 10, scale: 2 }).notNull(),
+    ownerName: varchar({ length: 255 }).notNull(),
+    ownerPhone: varchar({ length: 63 }).notNull(),
+    ownerEmail: varchar({ length: 255 }),
+    medicalNotes: text(),
+    allergies: text(),
+    feedingInstructions: text(),
+    specialCareInstructions: text(),
+    isActive: boolean().default(true).notNull(),
+    organisationId: uuid().references(() => businessTable.id),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+        .notNull()
+        .default(sql`(CURRENT_TIMESTAMP)`)
+        .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
+})
+
+
+
+
+
+
+
+
+
+

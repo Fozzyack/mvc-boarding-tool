@@ -93,6 +93,19 @@ import type { Dog, InsertDog } from "@/types";
 - Use typed query builders: `eq()`, `and()`, `or()`, `inArray()`
 - Handle transactions with `db.transaction()`
 
+#### Database Schema Conventions
+- **Table exports**: Suffix with `Table` (`businessTable`, `usersTable`, `boardersTable`)
+- **Timestamps**: Always include `createdAt` and `updatedAt` with auto-update
+- **Soft delete**: Use `isActive: boolean().default(true).notNull()` instead of hard deletes
+- **Foreign keys**: Use `references(() => tableName.id)` for relationships
+- **Varchar lengths**:
+  - `255` - Names, emails, addresses, longer text
+  - `63` - Short categorical values (breed, species, animalType)
+  - `50` - Phone numbers (accommodates extensions)
+  - `300` - Password hashes, encoded data
+- **Numeric precision**: Use `decimal({ precision: 10, scale: 2 })` for weights, prices
+- **Dates**: Use `date()` for birth dates, DOBs; `timestamp()` for audit fields
+
 ### Tailwind CSS
 - Use utility classes for all styling
 - Custom colors available: `accent`, `emerald-*`, `slate-*`
