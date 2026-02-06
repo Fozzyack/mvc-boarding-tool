@@ -1,11 +1,13 @@
 "use client";
 
 import getBackendUrl from "@/utils/getBackendUrl";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 const LoginPage = () => {
     const codeInput = useRef<HTMLInputElement>(null);
     const passwordInput = useRef<HTMLInputElement>(null);
+    const router = useRouter();
 
     const [formInfo, setFormInfo] = useState({
         code: "",
@@ -39,12 +41,10 @@ const LoginPage = () => {
             });
             const data = await res.json();
             if (!res.ok) {
-                setErrorMessage(
-                    data.err,
-                );
+                setErrorMessage(data.err);
             } else {
-                console.log(data);
                 setErrorMessage("");
+                router.push("/dashboard");
             }
         } catch (error) {
             setErrorMessage(
