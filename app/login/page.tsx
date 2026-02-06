@@ -54,7 +54,6 @@ const LoginPage = () => {
             console.error(error);
         }
     };
-    console.log("hmmm... ", errorMessage);
 
     return (
         <div className="min-h-screen w-full flex flex-col items-center justify-center md:grid md:grid-cols-2">
