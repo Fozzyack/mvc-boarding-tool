@@ -73,6 +73,7 @@ npx drizzle-kit studio
 
 ### Generate Password Hash for Testing
 
+Used if you want to quickly generate a password (if a new user needs to be created manually).
 ```bash
 # With default password (password123)
 npx tsx scripts/saltPassword.ts
@@ -80,8 +81,6 @@ npx tsx scripts/saltPassword.ts
 # With custom password
 npx tsx scripts/saltPassword.ts "mysecretpassword"
 ```
-
-Or set `TEST_PASSWORD` in `.env` and run the script without arguments.
 
 ## Project Structure
 
