@@ -1,0 +1,1 @@
+ALTER TABLE "users" ALTER COLUMN "passwordHash" SET NOT NULL;

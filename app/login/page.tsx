@@ -1,14 +1,14 @@
 "use client";
 
-import getBackendUrl from "@/utils/db/getBackendUrl";
+import getBackendUrl from "@/utils/getBackendUrl";
 import { useRef, useState } from "react";
 
 const LoginPage = () => {
-    const emailInput = useRef<HTMLInputElement>(null);
+    const codeInput = useRef<HTMLInputElement>(null);
     const passwordInput = useRef<HTMLInputElement>(null);
 
     const [formInfo, setFormInfo] = useState({
-        email: "",
+        code: "",
         password: "",
     });
 
@@ -33,17 +33,16 @@ const LoginPage = () => {
                     "Content-type": "application/json",
                 },
                 body: JSON.stringify({
-                    email: formInfo.email,
+                    code: formInfo.code,
                     password: formInfo.password,
                 }),
             });
+            const data = await res.json();
             if (!res.ok) {
-                console.log("This$uns???");
                 setErrorMessage(
-                    "There was an error logging you in, please try again later",
+                    data.err,
                 );
             } else {
-                const data = await res.json();
                 console.log(data);
                 setErrorMessage("");
             }
@@ -136,11 +135,11 @@ const LoginPage = () => {
                 >
                     <h4>Welcome!</h4>
                     <div className="space-y-1">
-                        <label className="block" htmlFor="email-input">
-                            Email or Username:
+                        <label className="block" htmlFor="code-input">
+                            User Code:
                         </label>
                         <div
-                            onClick={() => emailInput.current?.focus()!}
+                            onClick={() => codeInput.current?.focus()!}
                             className="rounded-xl border border-slate-400 py-2 bg-white flex items-center justify-start px-2 gap-2 focus-within:-translate-y-1 focus-within:scale-105 focus-within:shadow-lg focus-within:border-accent transition ease-in-out"
                         >
                             <svg
@@ -154,18 +153,18 @@ const LoginPage = () => {
                                 <path
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
-                                    d="M16.5 12a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Zm0 0c0 1.657 1.007 3 2.25 3S21 13.657 21 12a9 9 0 1 0-2.636 6.364M16.5 12V8.25"
+                                    d="m6.75 7.5 3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0 0 21 18V6a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 6v12a2.25 2.25 0 0 0 2.25 2.25Z"
                                 />
                             </svg>
 
                             <input
-                                ref={emailInput}
-                                id="email-input"
-                                name="email"
-                                value={formInfo.email}
+                                ref={codeInput}
+                                id="code-input"
+                                name="code"
+                                value={formInfo.code}
                                 onChange={handleInputChange}
                                 className="outline-none w-full"
-                                placeholder="example@domain.com"
+                                placeholder="XXXXXXXX"
                             />
                         </div>
                     </div>
