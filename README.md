@@ -136,9 +136,6 @@ JWT_SECRET_KEY="your-secret-key-here"
 
 # Backend URL for API requests (development)
 BACKEND_URL="http://localhost:3000"
-
-# Optional: Test password for hash generation
-TEST_PASSWORD="password123"
 ```
 
 ## Code Quality
@@ -193,14 +190,6 @@ utils/db/               # Database schema and connection
 drizzle.config.ts       # Drizzle configuration
 ```
 
-## Environment Variables
-
-Create a `.env` file in the root directory:
-
-```env
-# PostgreSQL connection string (from docker-compose)
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/mvc_boarding"
-```
 
 ## Learn More
 
