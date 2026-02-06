@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 import db from "@/utils/db/drizzle";
 import { usersTable } from "@/utils/db/schema";
 import { eq } from "drizzle-orm";
+import { createToken } from "@/utils/auth/auth";
+import { getNodeEnv } from "@/utils/getNodeEnv";
 
 export const POST = async (req: NextRequest) => {
     const { code, password } = await req.json();
@@ -32,10 +34,63 @@ export const POST = async (req: NextRequest) => {
     const user = query[0];
     console.log("Login detected:", code, " || Name:", user.name);
 
-    const comparison = await bcrypt.compare(password, user.passwordHash);
-    if (!comparison) {
-        return NextResponse.json({ err: "Incorrect User Code or Password"}, { status: 401 });
+    let comparison = false;
+    try {
+        comparison = await bcrypt.compare(password, user.passwordHash);
+    } catch (error) {
+        console.error(error);
+        return NextResponse.json(
+            { err: "Incorrect User Code or Password" },
+            { status: 401 },
+        );
     }
 
-    return NextResponse.json({ msg: "Success"}, { status: 200 });
+    if (!comparison) {
+        return NextResponse.json(
+            { err: "Incorrect User Code or Password" },
+            { status: 401 },
+        );
+    }
+    let jwtPayload = null;
+    let token = null;
+    try {
+        jwtPayload = {
+            userId: user.id,
+            organisationId: user.organisationId,
+            name: user.name,
+        };
+        if (jwtPayload == null) {
+            return NextResponse.json(
+                { err: "There was an error on our end. Try logging in again." },
+                { status: 400 },
+            );
+        }
+        token = await createToken(jwtPayload);
+        if (token == null) {
+            return NextResponse.json(
+                { err: "There was an error on our end. Try logging in again." },
+                { status: 400 },
+            );
+        }
+    } catch (error) {
+        console.error(error);
+        return NextResponse.json(
+            { err: "There was an error on our end. Try logging in again." },
+            { status: 400 },
+        );
+    }
+
+    const response = NextResponse.json(
+        { msg: "Success" },
+        { status: 200 },
+    );
+    response.cookies.set("barkboard", token, {
+        httpOnly: true,
+        secure: getNodeEnv() === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 7,
+        path: "/",
+    });
+
+    return response;
 };
