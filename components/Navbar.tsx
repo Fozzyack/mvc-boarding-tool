@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import PawPrint from "./icons/paw";
+import { tokenName } from "@/constants/auth";
 
 const LINKS = [
     {
@@ -76,6 +77,13 @@ const NavLinks = () => {
 };
 
 const Navbar = () => {
+    const router = useRouter();
+    const handleLogout = async (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        await fetch("/api/logout", { method: "POST" });
+        router.push("/");
+    };
+
     return (
         <nav className="py-6 bg-white h-screen w-64 flex flex-col border-r border-slate-200">
             <div className="px-6 pb-6 border-b border-slate-200">
@@ -91,28 +99,26 @@ const Navbar = () => {
 
             <div className="px-3 pb-6 border-t border-slate-200">
                 <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-slate-50"></div>
-                <form action="/api/logout" method="POST">
-                    <button
-                        type="submit"
-                        className="mt-3 w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+                <button
+                    onClick={handleLogout}
+                    className="mt-3 w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="size-6"
                     >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={1.5}
-                            stroke="currentColor"
-                            className="size-6"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15"
-                            />
-                        </svg>
-                        <span className="font-medium">Logout</span>
-                    </button>
-                </form>
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15"
+                        />
+                    </svg>
+                    <span className="font-medium">Logout</span>
+                </button>
             </div>
         </nav>
     );

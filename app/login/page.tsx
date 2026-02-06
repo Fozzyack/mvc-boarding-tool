@@ -201,7 +201,7 @@ const LoginPage = () => {
                                 className="outline-none w-full"
                                 placeholder="Password123!"
                             />
-                            <button onClick={toggleShowPassword}>
+                            <button type="button" onClick={toggleShowPassword}>
                                 {showPassword ? (
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
