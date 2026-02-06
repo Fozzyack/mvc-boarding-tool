@@ -131,7 +131,7 @@ const LoginPage = () => {
             <div className="center-within">
                 <form
                     onSubmit={handleLogin}
-                    className="flex flex-col space-y-4 w-[360px]"
+                    className=" relative p-12 bg-white shadow-xl border border-slate-300 rounded-3xl flex flex-col space-y-4 w-[400px]"
                 >
                     <h4>Welcome!</h4>
                     <div className="space-y-1">
@@ -140,7 +140,7 @@ const LoginPage = () => {
                         </label>
                         <div
                             onClick={() => codeInput.current?.focus()!}
-                            className="rounded-xl border border-slate-400 py-2 bg-white flex items-center justify-start px-2 gap-2 focus-within:-translate-y-1 focus-within:scale-105 focus-within:shadow-lg focus-within:border-accent transition ease-in-out"
+                            className="z-10 rounded-xl border border-slate-400 py-2 bg-white flex items-center justify-start px-2 gap-2 focus-within:-translate-y-1 focus-within:scale-105 focus-within:shadow-lg focus-within:border-accent transition ease-in-out"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -174,7 +174,7 @@ const LoginPage = () => {
                         </label>
                         <div
                             onClick={() => passwordInput.current?.focus()!}
-                            className="rounded-xl border border-slate-400 py-2 bg-white flex items-center justify-start px-2 gap-2 focus-within:-translate-y-1 focus-within:scale-105 focus-within:shadow-lg focus-within:border-accent transition ease-in-out"
+                            className="relative z-10 rounded-xl border border-slate-400 py-2 bg-white flex items-center justify-start px-2 gap-2 focus-within:-translate-y-1 focus-within:scale-105 focus-within:shadow-lg focus-within:border-accent transition ease-in-out"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"

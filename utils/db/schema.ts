@@ -1,4 +1,6 @@
-import { boolean, pgTable, uuid, varchar } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import { timestamp } from "drizzle-orm/pg-core";
+import { boolean, date, pgTable, uuid, varchar } from "drizzle-orm/pg-core";
 
 /*
  * Schema information for all the tables.
@@ -20,5 +22,11 @@ export const usersTable = pgTable("users", {
     code: varchar({ length: 255 }).unique(),
     isAdmin: boolean().default(false).notNull(),
     isNew: boolean().default(true).notNull(),
+    isActive: boolean().default(true).notNull(),
     organisationId: uuid().references(() => busniessTable.id),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+        .notNull()
+        .default(sql`(CURRENT_TIMESTAMP)`)
+        .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
 });

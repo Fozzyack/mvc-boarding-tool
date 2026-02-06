@@ -7,15 +7,17 @@ CREATE TABLE "businesses" (
 );
 --> statement-breakpoint
 CREATE TABLE "users" (
-	"id" uuid PRIMARY KEY NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" varchar(255) NOT NULL,
 	"passwordHash" varchar(300) NOT NULL,
-	"email" varchar(255),
-	"username" varchar(255),
+	"code" varchar(255),
+	"isAdmin" boolean DEFAULT false NOT NULL,
+	"isNew" boolean DEFAULT true NOT NULL,
+	"isActive" boolean DEFAULT true NOT NULL,
 	"organisationId" uuid,
+	"createdAt" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "users_id_unique" UNIQUE("id"),
-	CONSTRAINT "users_email_unique" UNIQUE("email"),
-	CONSTRAINT "users_username_unique" UNIQUE("username")
+	CONSTRAINT "users_code_unique" UNIQUE("code")
 );
 --> statement-breakpoint
 ALTER TABLE "users" ADD CONSTRAINT "users_organisationId_businesses_id_fk" FOREIGN KEY ("organisationId") REFERENCES "public"."businesses"("id") ON DELETE no action ON UPDATE no action;

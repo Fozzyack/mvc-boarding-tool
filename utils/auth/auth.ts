@@ -1,4 +1,4 @@
-import { tokenName } from "@/constants/auth";
+import { tokenExpirationTime, tokenName } from "@/constants/auth";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 
@@ -14,7 +14,7 @@ export const createToken = async (payload: any) => {
     return await new SignJWT(payload)
         .setProtectedHeader({ alg: "HS256" })
         .setIssuedAt()
-        .setExpirationTime("1d")
+        .setExpirationTime(tokenExpirationTime)
         .sign(getSecret());
 };
 
