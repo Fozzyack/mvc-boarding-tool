@@ -2,7 +2,6 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import PawPrint from "./icons/paw";
-import { tokenName } from "@/constants/auth";
 
 const LINKS = [
     {
@@ -26,6 +25,11 @@ const LINKS = [
         ),
     },
     {
+        name: "Boarders",
+        link: "/boarders",
+        icon: <PawPrint />,
+    },
+    {
         name: "Calendar",
         link: "/calendar",
         icon: (
@@ -44,11 +48,6 @@ const LINKS = [
                 />
             </svg>
         ),
-    },
-    {
-        name: "Boarders",
-        link: "/boarders",
-        icon: <PawPrint />,
     },
 ];
 const ADMIN_LINKS = [
