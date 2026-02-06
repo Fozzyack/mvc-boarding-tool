@@ -13,13 +13,13 @@ MVC Boarding Tool is a veterinary boarding management system built with Next.js 
 npm run dev          # Start development server at http://localhost:3000
 npm run build        # Build for production
 npm run start        # Start production server
-npm run lint         # Run ESLint
+npm run lint         # Run ESLint with auto-fix
 npx tsc --noEmit     # Type-check without emitting files
 ```
 
 ### Testing
 ```bash
-npm test             # Run all tests
+npm test             # Run all tests (if tests exist)
 npm test -- --testNamePattern="filter"  # Run tests matching pattern
 npm test -- --watch  # Watch mode for development
 ```
@@ -30,7 +30,7 @@ docker-compose up -d         # Start PostgreSQL via Docker
 npx drizzle-kit push         # Push schema changes to database
 npx drizzle-kit generate     # Generate new migration file
 npx drizzle-kit studio       # Open Drizzle Studio GUI at localhost:4983
-npx drizzle-kit migrate      # Run pending migrations
+npx drizzle-kit migrate       # Run pending migrations
 ```
 
 ### Database URL
@@ -140,3 +140,7 @@ tailwind.config.ts      # Tailwind configuration
 - Run database migrations after schema changes: `npx drizzle-kit migrate`
 - Keep dependencies updated via `npm outdated`
 - Review ESLint warnings and fix them promptly
+
+## External Agent Rules
+- No Cursor rules (.cursor/rules/ or .cursorrules) configured
+- No Copilot rules (.github/copilot-instructions.md) configured
