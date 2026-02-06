@@ -52,6 +52,15 @@ export const POST = async (req: NextRequest) => {
             { status: 401 },
         );
     }
+    if (!user.isActive) {
+        console.log("User has been disbanded");
+        return NextResponse.json(
+            {
+                err: "Account has been deactivated. Please contact your Client admin for more information",
+            },
+            { status: 401 },
+        );
+    }
     let jwtPayload = null;
     let token = null;
     try {
@@ -59,6 +68,7 @@ export const POST = async (req: NextRequest) => {
             userId: user.id,
             organisationId: user.organisationId,
             name: user.name,
+            isAdmin: user.isAdmin,
         };
         if (jwtPayload == null) {
             return NextResponse.json(

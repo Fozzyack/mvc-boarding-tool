@@ -51,8 +51,30 @@ const LINKS = [
         icon: <PawPrint />,
     },
 ];
+const ADMIN_LINKS = [
+    {
+        name: "Staff",
+        link: "/staff",
+        icon: (
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="size-6"
+            >
+                <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+                />
+            </svg>
+        ),
+    },
+];
 
-const NavLinks = () => {
+const NavLinks = ({ isAdmin }: { isAdmin: boolean }) => {
     const pathname = usePathname();
 
     return (
@@ -62,8 +84,7 @@ const NavLinks = () => {
                     href={`/dashboard/${link.link}`}
                     key={link.name}
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
-                        pathname === `/dashboard/${link.link}` ||
-                        pathname.startsWith(link.link + "/")
+                        pathname === `/dashboard${link.link}`
                             ? "bg-emerald-100 text-emerald-700"
                             : "text-slate-600 hover:bg-slate-100"
                     }`}
@@ -72,11 +93,26 @@ const NavLinks = () => {
                     <span className="font-medium">{link.name}</span>
                 </Link>
             ))}
+            {isAdmin &&
+                ADMIN_LINKS.map((link) => (
+                    <Link
+                        href={`/dashboard/${link.link}`}
+                        key={link.name}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+                            pathname === `/dashboard${link.link}`
+                                ? "bg-emerald-100 text-emerald-700"
+                                : "text-slate-600 hover:bg-slate-100"
+                        }`}
+                    >
+                        {link.icon}
+                        <span className="font-medium">{link.name}</span>
+                    </Link>
+                ))}
         </div>
     );
 };
 
-const Navbar = () => {
+const Navbar = ({ isAdmin }: { isAdmin: boolean }) => {
     const router = useRouter();
     const handleLogout = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
@@ -94,7 +130,7 @@ const Navbar = () => {
             </div>
 
             <div className="flex-1 py-6 px-3">
-                <NavLinks />
+                <NavLinks isAdmin={isAdmin} />
             </div>
 
             <div className="px-3 pb-6 border-t border-slate-200">
