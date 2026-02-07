@@ -55,6 +55,7 @@ export const boardersTable = pgTable("boarders", {
     isActive: boolean().default(true).notNull(),
 
     organisationId: uuid().references(() => businessTable.id),
+    createdBy: uuid().references(() => usersTable.id),
 
     createdAt: timestamp().notNull().defaultNow(),
     updatedAt: timestamp()
