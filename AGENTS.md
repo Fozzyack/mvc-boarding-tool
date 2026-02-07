@@ -13,28 +13,21 @@ MVC Boarding Tool is a veterinary boarding management system built with Next.js 
 npm run dev          # Start development server at http://localhost:3000
 npm run build        # Build for production
 npm run start        # Start production server
-npm run lint         # Run ESLint with auto-fix
+npm run lint         # Run ESLint (uses eslint-config-next)
 npx tsc --noEmit     # Type-check without emitting files
-```
-
-### Testing
-```bash
-npm test             # Run all tests (if tests exist)
-npm test -- --testNamePattern="filter"  # Run tests matching pattern
-npm test -- --watch  # Watch mode for development
 ```
 
 ### Database (Drizzle)
 ```bash
 docker-compose up -d         # Start PostgreSQL via Docker
-npx drizzle-kit push         # Push schema changes to database
-npx drizzle-kit generate     # Generate new migration file
-npx drizzle-kit studio       # Open Drizzle Studio GUI at localhost:4983
-npx drizzle-kit migrate       # Run pending migrations
+npx drizzle-kit push        # Push schema changes to database (dev only)
+npx drizzle-kit generate    # Generate new migration file in drizzle-migrations/
+npx drizzle-kit studio      # Open Drizzle Studio GUI at localhost:4983
+npx drizzle-kit migrate     # Run pending migrations against database
 ```
 
 ### Database URL
-Set `DATABASE_URL` in `.env` (Docker uses connection string from `docker-compose.yaml`).
+Set `DATABASE_URL` in `.env`. Docker uses connection string from `docker-compose.yaml`.
 
 ## Code Style Guidelines
 
@@ -52,6 +45,7 @@ Set `DATABASE_URL` in `.env` (Docker uses connection string from `docker-compose
 - **Variables/functions**: camelCase
 - **Database tables/columns**: snake_case (enforced by Drizzle)
 - **Table names**: singular form (`users`, not `user`)
+- **Table exports**: Suffix with `Table` (`businessTable`, `usersTable`)
 
 ### Imports and Organization
 - Use path aliases (`@/*`) for absolute imports
@@ -88,13 +82,12 @@ import type { Dog, InsertDog } from "@/types";
 ### Database (Drizzle ORM)
 - Define schemas in `utils/db/schema.ts`
 - Use `pgTable` with explicit constraints (`notNull`, `unique`, `default`)
-- Export table definitions for use in queries
+- Export table definitions with `Table` suffix
 - Database logic in dedicated files under `utils/db/`
 - Use typed query builders: `eq()`, `and()`, `or()`, `inArray()`
 - Handle transactions with `db.transaction()`
 
 #### Database Schema Conventions
-- **Table exports**: Suffix with `Table` (`businessTable`, `usersTable`, `boardersTable`)
 - **Timestamps**: Always include `createdAt` and `updatedAt` with auto-update
 - **Soft delete**: Use `isActive: boolean().default(true).notNull()` instead of hard deletes
 - **Foreign keys**: Use `references(() => tableName.id)` for relationships
@@ -124,15 +117,21 @@ import type { Dog, InsertDog } from "@/types";
 ```
 app/                    # Next.js App Router pages
   (routes)/             # Route groups
+  api/                  # API routes
   layout.tsx            # Root layout
   page.tsx              # Home page
 components/             # Reusable React components
   ui/                   # Generic UI components
   features/             # Feature-specific components
-utils/db/               # Database schema and connection
-  schema.ts             # Table definitions
-  drizzle.ts            # Database connection
-  getDbConnString.ts    # Environment-based connection string
+utils/                  # Utility functions and helpers
+  db/                   # Database schema and connection
+    schema.ts           # Table definitions
+    drizzle.ts          # Database connection
+    getDbConnString.ts  # Environment-based connection string
+types/                  # TypeScript type definitions
+constants/              # Application constants
+scripts/                # One-off scripts (e.g., password salting)
+drizzle-migrations/     # Generated migration files
 drizzle.config.ts       # Drizzle configuration
 next.config.ts          # Next.js configuration
 postcss.config.mjs      # PostCSS for Tailwind
@@ -146,11 +145,12 @@ tailwind.config.ts      # Tailwind configuration
 - Single quotes for strings
 - Print width: 100 characters
 - End of line: LF
+- Configured via `eslint.config.mjs` using eslint-config-next
 
 ## Code Quality
 - Run `npm run lint` before committing changes
 - Run `npx tsc --noEmit` to verify TypeScript compilation
-- Run database migrations after schema changes: `npx drizzle-kit migrate`
+- Run `npx drizzle-kit migrate` after schema changes
 - Keep dependencies updated via `npm outdated`
 - Review ESLint warnings and fix them promptly
 

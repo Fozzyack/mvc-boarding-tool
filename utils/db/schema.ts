@@ -1,6 +1,13 @@
 import { sql } from "drizzle-orm";
 import { text, timestamp } from "drizzle-orm/pg-core";
-import { boolean, date, decimal, pgTable, uuid, varchar } from "drizzle-orm/pg-core";
+import {
+    boolean,
+    date,
+    decimal,
+    pgTable,
+    uuid,
+    varchar,
+} from "drizzle-orm/pg-core";
 
 /*
  * Schema information for all the tables.
@@ -46,20 +53,40 @@ export const boardersTable = pgTable("boarders", {
     feedingInstructions: text(),
     specialCareInstructions: text(),
     isActive: boolean().default(true).notNull(),
+
+    organisationId: uuid().references(() => businessTable.id),
+
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+        .notNull()
+        .default(sql`(CURRENT_TIMESTAMP)`)
+        .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
+});
+
+export const medicationTable = pgTable("medications", {
+    id: uuid().primaryKey().unique().defaultRandom(),
+    name: varchar({ length: 255 }).notNull(),
+    dosage: varchar({ length: 100 }).notNull(), // e.g., "50mg", "1 tablet"
+    frequency: varchar({ length: 63 }).notNull(), // e.g., "twice daily", "every 8 hours"
+    administrationTimes: text(), // JSON array: ["08:00", "20:00"] or freeform
+    startDate: date().notNull(),
+    endDate: date(),
+    instructions: text(), // "give with food", "crush pill", etc.
+    prescribedBy: varchar({ length: 255 }), // vet name
+    refillsRemaining: decimal({ precision: 3, scale: 0 }),
+    sideEffectsToWatch: text(),
+    isActive: boolean().default(true).notNull(),
+    notes: text(),
+    administeredBy: uuid().references(() => usersTable.id), // who gave last dose
+    lastAdministeredAt: timestamp(),
+
+    boarderId: uuid()
+        .references(() => boardersTable.id)
+        .notNull(),
     organisationId: uuid().references(() => businessTable.id),
     createdAt: timestamp().notNull().defaultNow(),
     updatedAt: timestamp()
         .notNull()
         .default(sql`(CURRENT_TIMESTAMP)`)
         .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
-})
-
-
-
-
-
-
-
-
-
-
+});
