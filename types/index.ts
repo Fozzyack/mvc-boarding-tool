@@ -3,4 +3,4 @@ export type sessionPayload = {
     organisationId: string;
     name: string;
     isAdmin: boolean;
-};
+} | null;

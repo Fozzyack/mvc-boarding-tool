@@ -1,5 +1,6 @@
 "use client";
 
+import getBackendUrl from "@/utils/getBackendUrl";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -134,9 +135,37 @@ const BoarderModal = ({
     };
     const prevStep = () => setCurrentStep((prev) => prev - 1);
 
-    const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log("Form submitted:", formValues);
+        try {
+            const res = await fetch(`${getBackendUrl()}/api/boarders`, {
+                method: "POST",
+                headers: { "Content-type": "application/json" },
+                body: JSON.stringify({
+                    name: formValues.name,
+                    animalType: formValues.animalType,
+                    species: formValues.species,
+                    dateOfBirth: formValues.dateOfBirth,
+                    weight: formValues.weight,
+                    ownerName: formValues.ownerName,
+                    ownerPhone: formValues.ownerPhone,
+                    ownerEmail: formValues.ownerEmail,
+                    medicalNotes: formValues.medicalNotes,
+                    allergies: formValues.allergies,
+                    feedingInstructions: formValues.feedingInstructions,
+                    specialCareInstructions: formValues.specialCareInstructions,
+                }),
+            });
+            if (!res.ok) {
+                return console.error(
+                    "There was an Error (probably should put a popup here)",
+                );
+            }
+            const data = await res.json();
+            console.log(data);
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     const step1Required = ["name", "animalType"];

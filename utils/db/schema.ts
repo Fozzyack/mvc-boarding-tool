@@ -52,7 +52,7 @@ export const boardersTable = pgTable("boarders", {
     allergies: text(),
     feedingInstructions: text(),
     specialCareInstructions: text(),
-    isActive: boolean().default(true).notNull(),
+    isActive: boolean().default(true).notNull(), // soft delete
 
     organisationId: uuid().references(() => businessTable.id),
     createdBy: uuid().references(() => usersTable.id),
