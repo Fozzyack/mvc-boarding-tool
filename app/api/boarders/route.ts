@@ -30,6 +30,8 @@ export const POST = async (req: NextRequest) => {
             allergies: body.allergies || null,
             feedingInstructions: body.feedingInstructions || null,
             specialCareInstructions: body.specialCareInstructions || null,
+            startDate: body.startDate,
+            endDate: body.endDate,
             organisationId: session.organisationId,
             createdBy: session.userId,
         });

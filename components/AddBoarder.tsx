@@ -193,7 +193,7 @@ const BoarderModal = ({
         }
     };
 
-    const step1Required = ["name", "animalType"];
+    const step1Required = ["name", "animalType", "startDate", "endDate"];
     const step2Required = ["ownerName", "ownerPhone"];
 
     const isStepValid = () => {
