@@ -1,3 +1,4 @@
+import { useBoardersContext } from "@/contexts/BoardersContext";
 import { sessionPayload } from "@/types";
 import { getSession } from "@/utils/auth/auth";
 import { redirect } from "next/navigation";
@@ -7,7 +8,6 @@ const DashboardPage = async () => {
     if (!session) {
         redirect("/login");
     }
-    console.log(session);
     return (
         <div className="">
             <h2 className="text-emerald-700">Boarding Overview</h2>

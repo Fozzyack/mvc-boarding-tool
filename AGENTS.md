@@ -1,62 +1,55 @@
 # AGENTS.md
 
-This document provides guidelines for AI agents working on the MVC Boarding Tool codebase.
-
-## Project Overview
-
-MVC Boarding Tool is a veterinary boarding management system built with Next.js 16 (App Router), TypeScript 5, Drizzle ORM, PostgreSQL, and Tailwind CSS 4. The app helps clinic nurses track dogs during their stay with features for dog registration, status tracking, activity logging, and scheduling.
+MVC Boarding Tool: veterinary boarding management system with Next.js 16, TypeScript 5, Drizzle ORM, PostgreSQL, Tailwind CSS 4.
 
 ## Commands
 
-### Development
+### Development & Build
 ```bash
-npm run dev          # Start development server at http://localhost:3000
-npm run build        # Build for production
-npm run start        # Start production server
-npm run lint         # Run ESLint (uses eslint-config-next)
-npx tsc --noEmit     # Type-check without emitting files
+npm run dev          # Start dev server (localhost:3000)
+npm run build        # Production build
+npm run start        # Run production server
+npm run lint         # ESLint (eslint-config-next)
+npx tsc --noEmit     # Type-check without emitting
 ```
 
 ### Database (Drizzle)
 ```bash
-docker-compose up -d         # Start PostgreSQL via Docker
-npx drizzle-kit push        # Push schema changes to database (dev only)
-npx drizzle-kit generate    # Generate new migration file in drizzle-migrations/
-npx drizzle-kit studio      # Open Drizzle Studio GUI at localhost:4983
-npx drizzle-kit migrate     # Run pending migrations against database
+docker-compose up -d        # Start PostgreSQL via Docker
+npx drizzle-kit push       # Push schema (dev only)
+npx drizzle-kit generate   # Generate migration file
+npx drizzle-kit migrate    # Run pending migrations
+npx drizzle-kit studio     # Open Drizzle Studio GUI
 ```
-
-### Database URL
 Set `DATABASE_URL` in `.env`. Docker uses connection string from `docker-compose.yaml`.
 
-## Code Style Guidelines
+## Code Style
 
 ### TypeScript
-- Strict mode is enabled in `tsconfig.json`
-- Use explicit types for function parameters and return values
+- Strict mode enabled; use explicit types for parameters/returns
 - Prefer interfaces over type aliases for object shapes
-- Use `any` sparingly; use `unknown` when type is uncertain
-- Enable `noEmit` - compilation happens via Next.js build
+- Use `any` sparingly; prefer `unknown` when uncertain
+- `noEmit` enabled; Next.js handles compilation
 
 ### Naming Conventions
-- **Components**: PascalCase for React components (`LandingNav.tsx`)
-- **Files**: camelCase for utility files (`getDbConnString.ts`)
-- **Constants**: SCREAMING_SNAKE_CASE for config constants
-- **Variables/functions**: camelCase
-- **Database tables/columns**: snake_case (enforced by Drizzle)
-- **Table names**: singular form (`users`, not `user`)
-- **Table exports**: Suffix with `Table` (`businessTable`, `usersTable`)
+| Type | Convention | Example |
+|------|------------|---------|
+| Components | PascalCase | `LandingNav.tsx` |
+| Utilities | camelCase | `getDbConnString.ts` |
+| Constants | SCREAMING_SNAKE_CASE | `MAX_RETRY_COUNT` |
+| Variables/functions | camelCase | `isValidEmail` |
+| DB tables/columns | snake_case | `user_profile` |
+| Table exports | Suffix with `Table` | `dogsTable` |
 
-### Imports and Organization
-- Use path aliases (`@/*`) for absolute imports
-- Order imports: React → Next.js → Third-party → Internal aliases
-- Group imports with blank lines between groups
-- Default exports for page components and reusable components
-- Named exports for utilities and helpers
+### Imports
+Use path aliases (`@/*`). Order groups with blank lines:
+1. React / Next.js
+2. Third-party libraries
+3. Internal aliases (utils, types)
 
 ```typescript
-import Link from "next/link";
 import { useState } from "react";
+import Link from "next/link";
 import { eq, and } from "drizzle-orm";
 import { db } from "@/utils/db/drizzle";
 import { dogs } from "@/utils/db/schema";
@@ -64,96 +57,81 @@ import type { Dog, InsertDog } from "@/types";
 ```
 
 ### React Components
-- Use `"use client"` directive at the top for client components
-- Default export for page components
-- Use descriptive component names (avoid `Component1`, `Widget`)
-- Destructure props explicitly with type annotations
-- Keep components focused; extract complex logic to custom hooks
-- Use Server Components by default, only add `"use client"` when necessary
-
-### Server vs Client Components
-- Default to server components (App Router default)
-- Add `"use client"` only when:
-  - Using React hooks (`useState`, `useEffect`, `useCallback`)
-  - Using event handlers (`onClick`, `onChange`)
-  - Using browser-only APIs (window, document, etc.)
-- Minimize client components for better performance
+- Use `"use client"` only when hooks/events/browser APIs required
+- Default exports for pages and reusable components
+- Descriptive names; avoid `Component1`, `Widget`
+- Destructure props with explicit types
+- Extract complex logic to custom hooks
 
 ### Database (Drizzle ORM)
 - Define schemas in `utils/db/schema.ts`
-- Use `pgTable` with explicit constraints (`notNull`, `unique`, `default`)
-- Export table definitions with `Table` suffix
-- Database logic in dedicated files under `utils/db/`
-- Use typed query builders: `eq()`, `and()`, `or()`, `inArray()`
+- Use `pgTable` with explicit constraints
+- Export tables with `Table` suffix
+- Use typed builders: `eq()`, `and()`, `or()`, `inArray()`
 - Handle transactions with `db.transaction()`
 
-#### Database Schema Conventions
-- **Timestamps**: Always include `createdAt` and `updatedAt` with auto-update
-- **Soft delete**: Use `isActive: boolean().default(true).notNull()` instead of hard deletes
-- **Foreign keys**: Use `references(() => tableName.id)` for relationships
-- **Varchar lengths**:
-  - `255` - Names, emails, addresses, longer text
-  - `63` - Short categorical values (breed, species, animalType)
-  - `50` - Phone numbers (accommodates extensions)
-  - `300` - Password hashes, encoded data
-- **Numeric precision**: Use `decimal({ precision: 10, scale: 2 })` for weights, prices
-- **Dates**: Use `date()` for birth dates, DOBs; `timestamp()` for audit fields
+#### Schema Conventions
+| Field Type | Convention |
+|------------|------------|
+| Timestamps | `createdAt`, `updatedAt` with auto-update |
+| Soft delete | `isActive: boolean().default(true).notNull()` |
+| Foreign keys | `references(() => tableName.id)` |
+| Varchar (names/email) | `255` characters |
+| Varchar (categorical) | `63` characters |
+| Varchar (phone) | `50` characters |
+| Varchar (hashes) | `300` characters |
+| Weights/prices | `decimal({ precision: 10, scale: 2 })` |
+| Birth dates | `date()` |
+| Audit fields | `timestamp()` |
 
 ### Tailwind CSS
-- Use utility classes for all styling
-- Custom colors available: `accent`, `emerald-*`, `slate-*`
-- Mobile-first responsive design (`base`, `md:`, `lg:` prefixes)
-- Avoid custom CSS; use Tailwind utilities exclusively
-- Use `@apply` sparingly; prefer direct utility classes
+- Use utility classes exclusively; avoid custom CSS
+- Custom colors: `accent`, `emerald-*`, `slate-*`
+- Mobile-first: `base`, `md:`, `lg:` prefixes
 
 ### Error Handling
-- Use try/catch for async database operations
-- Return typed results from database queries
-- Handle edge cases explicitly with early returns
-- Use custom error types for domain-specific errors
-- Log errors appropriately (console.error in development)
+- try/catch for async DB operations
+- Return typed results from queries
+- Early returns for edge cases
+- Custom error types for domain errors
+- Console error logging in development
 
-### File Structure
+## File Structure
 ```
-app/                    # Next.js App Router pages
+app/                    # Next.js App Router
   (routes)/             # Route groups
   api/                  # API routes
-  layout.tsx            # Root layout
   page.tsx              # Home page
-components/             # Reusable React components
-  ui/                   # Generic UI components
-  features/             # Feature-specific components
-utils/                  # Utility functions and helpers
-  db/                   # Database schema and connection
+  layout.tsx            # Root layout
+components/             # Reusable components
+  ui/                   # Generic UI
+  features/             # Feature-specific
+utils/                  # Utilities
+  db/                   # DB schema & connection
     schema.ts           # Table definitions
-    drizzle.ts          # Database connection
-    getDbConnString.ts  # Environment-based connection string
-types/                  # TypeScript type definitions
-constants/              # Application constants
-scripts/                # One-off scripts (e.g., password salting)
-drizzle-migrations/     # Generated migration files
-drizzle.config.ts       # Drizzle configuration
-next.config.ts          # Next.js configuration
-postcss.config.mjs      # PostCSS for Tailwind
-tailwind.config.ts      # Tailwind configuration
+    drizzle.ts          # DB connection
+    getDbConnString.ts # Env-based connection
+types/                  # TypeScript types
+constants/              # App constants
+scripts/                # One-off scripts
+drizzle-migrations/    # Migration files
+drizzle.config.ts       # Drizzle config
 ```
 
-### Formatting (ESLint + Prettier)
-- Tab width: 4 spaces
+## Formatting
+Configured via `eslint.config.mjs` with eslint-config-next:
+- 4 spaces for tabs
 - Semicolons: yes
 - Trailing commas: yes
 - Single quotes for strings
-- Print width: 100 characters
+- Print width: 100
 - End of line: LF
-- Configured via `eslint.config.mjs` using eslint-config-next
 
-## Code Quality
-- Run `npm run lint` before committing changes
-- Run `npx tsc --noEmit` to verify TypeScript compilation
-- Run `npx drizzle-kit migrate` after schema changes
-- Keep dependencies updated via `npm outdated`
-- Review ESLint warnings and fix them promptly
+## Quality Checklist
+- [ ] `npm run lint` passes
+- [ ] `npx tsc --noEmit` passes
+- [ ] `npx drizzle-kit migrate` after schema changes
 
 ## External Agent Rules
-- No Cursor rules (.cursor/rules/ or .cursorrules) configured
-- No Copilot rules (.github/copilot-instructions.md) configured
+- No Cursor rules configured
+- No Copilot rules configured

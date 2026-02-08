@@ -1,5 +1,6 @@
 "use client";
 
+import { useBoardersContext } from "@/contexts/BoardersContext";
 import getBackendUrl from "@/utils/getBackendUrl";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
@@ -109,6 +110,8 @@ const BoarderModal = ({
         species: "",
         dateOfBirth: "",
         weight: "",
+        startDate: "",
+        endDate: "",
         ownerName: "",
         ownerPhone: "",
         ownerEmail: "",
@@ -117,6 +120,8 @@ const BoarderModal = ({
         feedingInstructions: "",
         specialCareInstructions: "",
     });
+
+    const { refreshBoarders } = useBoardersContext();
 
     useEffect(() => {
         // Just here as the next buttons are a bit buggy.
@@ -147,6 +152,8 @@ const BoarderModal = ({
                     species: formValues.species,
                     dateOfBirth: formValues.dateOfBirth,
                     weight: formValues.weight,
+                    startDate: formValues.startDate,
+                    endDate: formValues.endDate,
                     ownerName: formValues.ownerName,
                     ownerPhone: formValues.ownerPhone,
                     ownerEmail: formValues.ownerEmail,
@@ -163,6 +170,24 @@ const BoarderModal = ({
             }
             const data = await res.json();
             console.log(data);
+            setIsOpen(false);
+            refreshBoarders();
+            setFormValues({
+                name: "",
+                animalType: "",
+                species: "",
+                dateOfBirth: "",
+                weight: "",
+                startDate: "",
+                endDate: "",
+                ownerName: "",
+                ownerPhone: "",
+                ownerEmail: "",
+                medicalNotes: "",
+                allergies: "",
+                feedingInstructions: "",
+                specialCareInstructions: "",
+            });
         } catch (error) {
             console.error(error);
         }
@@ -305,6 +330,24 @@ const BoarderModal = ({
                                 step="0.01"
                                 value={formValues.weight}
                                 onChangeFunction={handleInputChange}
+                            />
+                            <InputField
+                                label="Start Date"
+                                name="startDate"
+                                placeholder="2026-02-08"
+                                type="date"
+                                value={formValues.startDate}
+                                onChangeFunction={handleInputChange}
+                                required
+                            />
+                            <InputField
+                                label="End Date"
+                                name="endDate"
+                                placeholder="2026-02-15"
+                                type="date"
+                                value={formValues.endDate}
+                                onChangeFunction={handleInputChange}
+                                required
                             />
                         </div>
                     )}

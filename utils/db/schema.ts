@@ -54,6 +54,9 @@ export const boardersTable = pgTable("boarders", {
     specialCareInstructions: text(),
     isActive: boolean().default(true).notNull(), // soft delete
 
+    startDate: date().notNull(),
+    endDate: date().notNull(),
+
     organisationId: uuid().references(() => businessTable.id),
     createdBy: uuid().references(() => usersTable.id),
 

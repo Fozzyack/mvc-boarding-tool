@@ -2,6 +2,7 @@ import { sessionPayload } from "@/types";
 import { getSession } from "@/utils/auth/auth";
 import db from "@/utils/db/drizzle";
 import { boardersTable } from "@/utils/db/schema";
+import { eq, and } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
@@ -41,4 +42,28 @@ export const POST = async (req: NextRequest) => {
             { status: 500 },
         );
     }
+};
+
+export const GET = async () => {
+    const session = (await getSession()) as sessionPayload;
+    if (!session) {
+        console.log("No JWT token found");
+        return NextResponse.json(
+            { msg: "Cannot complete this action: unAuthorized" },
+            { status: 401 },
+        );
+    }
+
+    const query = await db
+        .select()
+        .from(boardersTable)
+        .where(
+            and(
+                eq(boardersTable.isActive, true),
+                eq(boardersTable.organisationId, session.organisationId),
+            ),
+        );
+
+    console.log(query);
+    return NextResponse.json({msg: "Success", boarders: query});
 };

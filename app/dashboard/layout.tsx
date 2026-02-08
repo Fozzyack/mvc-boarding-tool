@@ -1,4 +1,5 @@
 import Navbar from "@/components/Navbar";
+import { BoardersProvider } from "@/contexts/BoardersContext";
 import { sessionPayload } from "@/types";
 import { getSession } from "@/utils/auth/auth";
 import { redirect } from "next/navigation";
@@ -14,7 +15,9 @@ const Layout = async ({ children }: { children: ReactNode }) => {
             <div className="col-span-2">
                 <Navbar isAdmin={session.isAdmin} />
             </div>
-            <div className="col-span-10 p-10">{children}</div>
+            <div className="col-span-10 p-10">
+                <BoardersProvider>{children}</BoardersProvider>
+            </div>
         </div>
     );
 };
