@@ -1,7 +1,7 @@
 import { sessionPayload } from "@/types";
 import { getSession } from "@/utils/auth/auth";
 import db from "@/utils/db/drizzle";
-import { boardersTable } from "@/utils/db/schema";
+import { boardersTable, medicationTable } from "@/utils/db/schema";
 import { eq, and } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -59,6 +59,10 @@ export const GET = async () => {
     const query = await db
         .select()
         .from(boardersTable)
+        .leftJoin(
+            medicationTable,
+            eq(boardersTable.id, medicationTable.boarderId),
+        )
         .where(
             and(
                 eq(boardersTable.isActive, true),
@@ -66,6 +70,29 @@ export const GET = async () => {
             ),
         );
 
-    console.log(query);
-    return NextResponse.json({msg: "Success", boarders: query});
+    const boardersMap = new Map();
+    for (const row of query) {
+        if (!boardersMap.has(row.boarders.id)) {
+            boardersMap.set(row.boarders.id, {
+                ...row.boarders,
+                medications: [],
+            });
+        }
+        if (row.medications) {
+            boardersMap.get(row.boarders.id).medications.push({
+                id: row.medications.id,
+                name: row.medications.name,
+                dosage: row.medications.dosage,
+                frequency: row.medications.frequency,
+                startDate: row.medications.startDate,
+                endDate: row.medications.endDate,
+                instructions: row.medications.instructions,
+            });
+        }
+    }
+    console.log(boardersMap);
+    const payload = Array.from(boardersMap.values());
+    console.log(payload);
+
+    return NextResponse.json({ msg: "Success", boarders: payload });
 };

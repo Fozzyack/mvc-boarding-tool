@@ -91,8 +91,21 @@ const seed = async () => {
         .values({
             name: "Carprofen",
             dosage: "50mg",
-            frequency: "Once daily",
+            frequency: "1 week",
             startDate: "2025-02-01",
+            instructions: "Give with food",
+            boarderId: boarder.id,
+            organisationId: business.id,
+        })
+        .returning();
+
+    const [medication2] = await db
+        .insert(medicationTable)
+        .values({
+            name: "Homing ballistic missle",
+            dosage: "20kg",
+            frequency: "3 Days",
+            startDate: "2025-02-02",
             instructions: "Give with food",
             boarderId: boarder.id,
             organisationId: business.id,
@@ -103,6 +116,7 @@ const seed = async () => {
     console.log(user);
     console.log(boarder);
     console.log(medication);
+    console.log(medication2);
 
     console.log("Database seeded successfully!");
 };

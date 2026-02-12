@@ -1,6 +1,7 @@
 "use client";
 
 import { useBoardersContext } from "@/contexts/BoardersContext";
+import AddMedicationModal from "./AddMedicationModal";
 
 const BoardersTable = () => {
     const { boarders } = useBoardersContext();
@@ -63,7 +64,7 @@ const BoardersTable = () => {
                                 {boarder.ownerPhone || "N/A"}
                             </td>
                             <td className="px-6 py-2">
-                                {boarder.ownerPhone || "N/A"}
+                                <AddMedicationModal boarderId={boarder.id} />
                             </td>
                             <td className="px-6 py-2">
                                 {boarder.ownerPhone || "N/A"}
