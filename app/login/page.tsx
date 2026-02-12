@@ -131,7 +131,7 @@ const LoginPage = () => {
             <div className="center-within">
                 <form
                     onSubmit={handleLogin}
-                    className=" relative p-12 bg-white shadow-xl border border-slate-300 rounded-3xl flex flex-col space-y-4 w-[400px]"
+                    className=" relative p-12 bg-white shadow-xl border border-slate-300 rounded-3xl flex flex-col space-y-4 w-100"
                 >
                     <h4>Welcome!</h4>
                     <div className="space-y-1">
