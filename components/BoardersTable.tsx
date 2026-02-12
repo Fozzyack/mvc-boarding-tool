@@ -30,6 +30,9 @@ const BoardersTable = () => {
                         <th scope="col" className="px-6 py-3 font-medium">
                             Medication
                         </th>
+                        <th scope="col" className="px-6 py-3 font-medium">
+                            Actions
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -55,6 +58,12 @@ const BoardersTable = () => {
                             </td>
                             <td className="px-6 py-2">
                                 {boarder.ownerName || "N/A"}
+                            </td>
+                            <td className="px-6 py-2">
+                                {boarder.ownerPhone || "N/A"}
+                            </td>
+                            <td className="px-6 py-2">
+                                {boarder.ownerPhone || "N/A"}
                             </td>
                             <td className="px-6 py-2">
                                 {boarder.ownerPhone || "N/A"}

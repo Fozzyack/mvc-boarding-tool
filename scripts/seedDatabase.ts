@@ -1,6 +1,11 @@
 import "dotenv/config";
 import db from "@/utils/db/drizzle";
-import { businessTable, usersTable } from "@/utils/db/schema";
+import {
+    boardersTable,
+    businessTable,
+    medicationTable,
+    usersTable,
+} from "@/utils/db/schema";
 import bcrypt from "bcrypt";
 
 /*
@@ -29,6 +34,10 @@ const checkEnv = () => {
 };
 
 const delete_from_database = async () => {
+    console.log("Delete medication from medication table");
+    await db.delete(medicationTable);
+    console.log("Delete boarders from boarders table");
+    await db.delete(boardersTable);
     console.log("Delete users from users table");
     await db.delete(usersTable);
     console.log("Delete businesses from business table");
@@ -61,8 +70,41 @@ const seed = async () => {
         })
         .returning();
 
+    const [boarder] = await db
+        .insert(boardersTable)
+        .values({
+            name: "Buddy",
+            animalType: "Dog",
+            species: "Golden Retriever",
+            ownerName: "John Doe",
+            ownerPhone: "555-0123",
+            ownerEmail: "john@example.com",
+            startDate: "2025-02-01",
+            endDate: "2025-02-07",
+            organisationId: business.id,
+            createdBy: user.id,
+        })
+        .returning();
+
+    const [medication] = await db
+        .insert(medicationTable)
+        .values({
+            name: "Carprofen",
+            dosage: "50mg",
+            frequency: "Once daily",
+            startDate: "2025-02-01",
+            instructions: "Give with food",
+            boarderId: boarder.id,
+            organisationId: business.id,
+        })
+        .returning();
+
     console.log(business);
     console.log(user);
+    console.log(boarder);
+    console.log(medication);
+
+    console.log("Database seeded successfully!");
 };
 
 async function main() {
