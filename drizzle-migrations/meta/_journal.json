@@ -50,6 +50,13 @@
       "when": 1770554141603,
       "tag": "0006_far_quasimodo",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1770887952163,
+      "tag": "0007_purple_moonstone",
+      "breakpoints": true
     }
   ]
 }
