@@ -28,6 +28,13 @@ const checkEnv = () => {
     return;
 };
 
+const delete_from_database = async () => {
+    console.log("Delete users from users table");
+    await db.delete(usersTable);
+    console.log("Delete businesses from business table");
+    await db.delete(businessTable);
+};
+
 const seed = async () => {
     checkEnv();
     const [business] = await db
@@ -59,7 +66,14 @@ const seed = async () => {
 };
 
 async function main() {
+    if (process.argv[2] == "delete") {
+        console.log("Deleting table entries");
+        await delete_from_database();
+        return;
+    }
+    console.log("Seeding Database");
     await seed();
+    return;
 }
 
 main();
