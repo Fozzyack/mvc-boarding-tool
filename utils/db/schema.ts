@@ -18,6 +18,11 @@ export const businessTable = pgTable("businesses", {
     id: uuid().primaryKey().unique().defaultRandom(),
     name: varchar({ length: 255 }).notNull().unique(),
     email: varchar({ length: 255 }).notNull(),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+        .notNull()
+        .default(sql`(CURRENT_TIMESTAMP)`)
+        .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
 });
 
 // Individual user emails (used to log in) Each user should belong to a business
