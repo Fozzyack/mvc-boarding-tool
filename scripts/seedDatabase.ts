@@ -128,6 +128,22 @@ const seed = async () => {
         })
         .returning();
 
+    const [boarder3] = await db
+        .insert(boardersTable)
+        .values({
+            name: "Atlas",
+            animalType: "Dog",
+            species: "Border Collie",
+            ownerName: "Noah Singh",
+            ownerPhone: "555-0217",
+            ownerEmail: "noah@example.com",
+            startDate: formatDateForDb(boardingStartDate),
+            endDate: formatDateForDb(boardingEndDate),
+            organisationId: business.id,
+            createdBy: user.id,
+        })
+        .returning();
+
     const [medication] = await db
         .insert(medicationTable)
         .values({
@@ -208,15 +224,68 @@ const seed = async () => {
         })
         .returning();
 
+    const [medication6] = await db
+        .insert(medicationTable)
+        .values({
+            name: "Carprofen",
+            dosage: "75mg",
+            scheduleType: "recurring",
+            intervalDays: 1,
+            timingType: "clock",
+            administrationTime: "07:30",
+            startDate: formatDateForDb(boardingStartDate),
+            endDate: formatDateForDb(boardingEndDate),
+            instructions: "Give after breakfast",
+            boarderId: boarder3.id,
+            organisationId: business.id,
+        })
+        .returning();
+
+    const [medication7] = await db
+        .insert(medicationTable)
+        .values({
+            name: "Fluoxetine",
+            dosage: "10mg",
+            scheduleType: "recurring",
+            intervalDays: 1,
+            timingType: "slot",
+            daySlot: "morning",
+            startDate: formatDateForDb(boardingStartDate),
+            endDate: formatDateForDb(boardingEndDate),
+            instructions: "Keep routine timing daily",
+            boarderId: boarder3.id,
+            organisationId: business.id,
+        })
+        .returning();
+
+    const [medication8] = await db
+        .insert(medicationTable)
+        .values({
+            name: "Trazodone",
+            dosage: "100mg",
+            scheduleType: "one_off",
+            timingType: "clock",
+            administrationTime: "18:00",
+            startDate: formatDateForDb(addDays(boardingStartDate, 4)),
+            instructions: "One-time dose before evening handling",
+            boarderId: boarder3.id,
+            organisationId: business.id,
+        })
+        .returning();
+
     console.log(business);
     console.log(user);
     console.log(boarder);
     console.log(boarder2);
+    console.log(boarder3);
     console.log(medication);
     console.log(medication2);
     console.log(medication3);
     console.log(medication4);
     console.log(medication5);
+    console.log(medication6);
+    console.log(medication7);
+    console.log(medication8);
 
     console.log("Database seeded successfully!");
 };
