@@ -464,7 +464,7 @@ const AddBoarder = () => {
         <>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="bg-emerald-600 text-white flex items-center justify-center px-4 py-2 rounded-xl hover:cursor-pointer hover:-translate-y-1 transition-all ease-in-out duration-150"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 font-semibold text-white shadow-lg shadow-emerald-600/20 transition-all duration-150 ease-in-out hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-xl hover:shadow-emerald-600/30"
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -472,7 +472,7 @@ const AddBoarder = () => {
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
                     stroke="currentColor"
-                    className="size-6"
+                    className="size-5"
                 >
                     <path
                         strokeLinecap="round"

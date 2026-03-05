@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import PawPrint from "./icons/paw";
 
 const LINKS = [
     {
@@ -23,11 +22,6 @@ const LINKS = [
                 />
             </svg>
         ),
-    },
-    {
-        name: "Boarders",
-        link: "/boarders",
-        icon: <PawPrint />,
     },
     {
         name: "Calendar",

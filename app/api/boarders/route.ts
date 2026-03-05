@@ -1,7 +1,7 @@
 import { sessionPayload } from "@/types";
 import { getSession } from "@/utils/auth/auth";
-import db from "@/utils/db/drizzle";
-import { boardersTable, medicationTable } from "@/utils/db/schema";
+import db from "@/db/drizzle";
+import { boardersTable, medicationTable } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 

@@ -1,5 +1,5 @@
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
-import { businessTable, usersTable, boardersTable, medicationTable } from "@/utils/db/schema";
+import { businessTable, usersTable, boardersTable, medicationTable } from "@/db/schema";
 
 export type sessionPayload = {
     userId: string;

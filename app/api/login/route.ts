@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
-import db from "@/utils/db/drizzle";
-import { usersTable } from "@/utils/db/schema";
+import db from "@/db/drizzle";
+import { usersTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { createToken } from "@/utils/auth/auth";
 import { getNodeEnv } from "@/utils/getNodeEnv";

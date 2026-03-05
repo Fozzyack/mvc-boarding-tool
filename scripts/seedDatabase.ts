@@ -1,11 +1,11 @@
 import "dotenv/config";
-import db from "@/utils/db/drizzle";
+import db from "@/db/drizzle";
 import {
     boardersTable,
     businessTable,
     medicationTable,
     usersTable,
-} from "@/utils/db/schema";
+} from "@/db/schema";
 import bcrypt from "bcrypt";
 
 /*
