@@ -127,7 +127,6 @@ const Navbar = ({ isAdmin }: { isAdmin: boolean }) => {
             </div>
 
             <div className="border-t border-border px-3 pb-6">
-                <div className="flex items-center gap-3 rounded-xl bg-surface-muted px-3 py-3"></div>
                 <button
                     onClick={handleLogout}
                     className="mt-3 flex w-full items-center gap-3 rounded-xl px-3 py-3 text-text-muted transition-colors hover:bg-red-50 hover:text-red-600"
