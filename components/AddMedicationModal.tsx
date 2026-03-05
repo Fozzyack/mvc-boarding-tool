@@ -133,7 +133,7 @@ const MedicationFormModal = ({
                             required
                         />
                     </FormField>
-                    <div className="flex items-center gap-2 rounded-base border border-border bg-surface px-3 py-2 md:col-span-2">
+                    <div className="flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 md:col-span-2">
                         <input
                             id="isOneOff"
                             name="isOneOff"
