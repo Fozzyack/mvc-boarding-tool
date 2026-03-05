@@ -90,14 +90,23 @@ const ADMIN_LINKS = [
 const NavLinks = ({ isAdmin }: { isAdmin: boolean }) => {
     const pathname = usePathname();
 
+    const getDashboardHref = (link: string): string => {
+        const normalizedLink = link.replace(/^\/+/, "");
+        if (!normalizedLink) {
+            return "/dashboard";
+        }
+
+        return `/dashboard/${normalizedLink}`;
+    };
+
     return (
         <div className="flex flex-col space-y-1 w-full">
             {LINKS.map((link) => (
                 <Link
-                    href={`/dashboard/${link.link}`}
+                    href={getDashboardHref(link.link)}
                     key={link.name}
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
-                        pathname === `/dashboard${link.link}`
+                        pathname === getDashboardHref(link.link)
                             ? "bg-brand/10 text-brand"
                             : "text-text-muted hover:bg-surface-muted"
                     }`}
@@ -109,10 +118,10 @@ const NavLinks = ({ isAdmin }: { isAdmin: boolean }) => {
             {isAdmin &&
                 ADMIN_LINKS.map((link) => (
                     <Link
-                        href={`/dashboard/${link.link}`}
+                        href={getDashboardHref(link.link)}
                         key={link.name}
                         className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
-                            pathname === `/dashboard${link.link}`
+                            pathname === getDashboardHref(link.link)
                                 ? "bg-brand/10 text-brand"
                                 : "text-text-muted hover:bg-surface-muted"
                         }`}

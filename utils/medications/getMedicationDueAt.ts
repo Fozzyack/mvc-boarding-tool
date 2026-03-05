@@ -53,12 +53,54 @@ const getDayDiff = (left: Date, right: Date): number => {
     return Math.floor((leftUtc - rightUtc) / msPerDay);
 };
 
-const getScheduledTime = (input: MedicationDueInput): { hour: number; minute: number } => {
+const isValidClockTime = (value: string): boolean => {
+    return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value);
+};
+
+const hasValidInvariant = (input: MedicationDueInput): boolean => {
+    if (input.scheduleType === "recurring") {
+        if (input.intervalDays === null || !Number.isInteger(input.intervalDays) || input.intervalDays < 1) {
+            return false;
+        }
+    }
+
+    if (input.scheduleType === "one_off" && input.intervalDays !== null) {
+        return false;
+    }
+
+    if (input.timingType === "clock") {
+        if (!input.administrationTime || !isValidClockTime(input.administrationTime)) {
+            return false;
+        }
+
+        return input.daySlot === null;
+    }
+
+    if (input.daySlot !== "morning" && input.daySlot !== "night") {
+        return false;
+    }
+
+    return input.administrationTime === null;
+};
+
+const getScheduledTime = (input: MedicationDueInput): { hour: number; minute: number } | null => {
     if (input.timingType === "clock" && input.administrationTime) {
         const [hours, minutes] = input.administrationTime.split(":").map(Number);
+
+        if (
+            Number.isNaN(hours) ||
+            Number.isNaN(minutes) ||
+            hours < 0 ||
+            hours > 23 ||
+            minutes < 0 ||
+            minutes > 59
+        ) {
+            return null;
+        }
+
         return {
-            hour: Number.isNaN(hours) ? MORNING_HOUR : hours,
-            minute: Number.isNaN(minutes) ? 0 : minutes,
+            hour: hours,
+            minute: minutes,
         };
     }
 
@@ -66,7 +108,11 @@ const getScheduledTime = (input: MedicationDueInput): { hour: number; minute: nu
         return { hour: NIGHT_HOUR, minute: 0 };
     }
 
-    return { hour: MORNING_HOUR, minute: 0 };
+    if (input.daySlot === "morning") {
+        return { hour: MORNING_HOUR, minute: 0 };
+    }
+
+    return null;
 };
 
 const buildDateTime = (dateOnly: Date, timing: { hour: number; minute: number }): Date => {
@@ -82,19 +128,31 @@ const buildDateTime = (dateOnly: Date, timing: { hour: number; minute: number })
 };
 
 const getMedicationDueAt = (input: MedicationDueInput, now: Date = new Date()): Date | null => {
+    if (!hasValidInvariant(input)) {
+        return null;
+    }
+
     const startDate = parseDateInput(input.startDate);
     if (!startDate) {
         return null;
     }
 
     const timing = getScheduledTime(input);
+    if (!timing) {
+        return null;
+    }
+
     const lastAdministeredAt = parseDateInput(input.lastAdministeredAt);
 
     if (input.scheduleType === "one_off") {
         return buildDateTime(toDateOnly(startDate), timing);
     }
 
-    const intervalDays = input.intervalDays || 1;
+    const intervalDays = input.intervalDays;
+    if (intervalDays === null) {
+        return null;
+    }
+
     const today = toDateOnly(now);
     const startDay = toDateOnly(startDate);
 

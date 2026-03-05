@@ -5,7 +5,15 @@ const getMedicationScheduleLabel = (medication: BoarderMedicationSummary): strin
         return "One-time dose";
     }
 
-    const intervalDays = medication.intervalDays || 1;
+    if (medication.intervalDays === null || !Number.isInteger(medication.intervalDays)) {
+        return "Invalid interval";
+    }
+
+    if (medication.intervalDays < 1) {
+        return "Invalid interval";
+    }
+
+    const intervalDays = medication.intervalDays;
     return `Every ${intervalDays} day${intervalDays === 1 ? "" : "s"}`;
 };
 

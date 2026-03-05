@@ -37,7 +37,7 @@ const MedicationsPage = () => {
     const handleMedicationAction = async (
         medicationId: string,
         actionType: MedicationLogAction,
-    ) => {
+    ): Promise<boolean> => {
         setUpdatingMedicationId(medicationId);
         try {
             const response = await fetch(
@@ -53,12 +53,14 @@ const MedicationsPage = () => {
 
             if (!response.ok) {
                 console.error("Failed to mark medication as given");
-                return;
+                return false;
             }
 
             refreshBoarders();
+            return true;
         } catch (error) {
             console.error(error);
+            return false;
         } finally {
             setUpdatingMedicationId(null);
         }
@@ -232,11 +234,13 @@ const MedicationsPage = () => {
                     isLoading={updatingMedicationId === pendingAction.medicationId}
                     onCancel={() => setPendingAction(null)}
                     onConfirm={async () => {
-                        await handleMedicationAction(
+                        const didSucceed = await handleMedicationAction(
                             pendingAction.medicationId,
                             pendingAction.actionType,
                         );
-                        setPendingAction(null);
+                        if (didSucceed) {
+                            setPendingAction(null);
+                        }
                     }}
                 />
             ) : null}

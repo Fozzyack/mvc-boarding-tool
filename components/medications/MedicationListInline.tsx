@@ -60,7 +60,7 @@ const MedicationListInline = ({
     const handleMedicationAction = async (
         medicationId: string,
         actionType: "administered" | "skipped" | "missed",
-    ) => {
+    ): Promise<boolean> => {
         setUpdatingMedicationId(medicationId);
         try {
             const response = await fetch(
@@ -76,12 +76,14 @@ const MedicationListInline = ({
 
             if (!response.ok) {
                 console.error("Failed to update medication status");
-                return;
+                return false;
             }
 
             refreshBoarders();
+            return true;
         } catch (error) {
             console.error(error);
+            return false;
         } finally {
             setUpdatingMedicationId(null);
         }
@@ -180,11 +182,13 @@ const MedicationListInline = ({
                     isLoading={updatingMedicationId === pendingAction.medicationId}
                     onCancel={() => setPendingAction(null)}
                     onConfirm={async () => {
-                        await handleMedicationAction(
+                        const didSucceed = await handleMedicationAction(
                             pendingAction.medicationId,
                             pendingAction.actionType,
                         );
-                        setPendingAction(null);
+                        if (didSucceed) {
+                            setPendingAction(null);
+                        }
                     }}
                 />
             ) : null}

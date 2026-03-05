@@ -130,6 +130,8 @@ const BoardersTable = () => {
                                             variant="secondary"
                                             onClick={() => toggleRow(boarder.id)}
                                             className="min-w-28"
+                                            aria-expanded={isExpanded}
+                                            aria-controls={`boarder-medications-${boarder.id}`}
                                         >
                                             {isExpanded ? "Hide meds" : "View meds"}
                                             <svg
@@ -151,26 +153,25 @@ const BoardersTable = () => {
                                         </Button>
                                     </td>
                                 </tr>
-                                <tr className="border-b border-border">
-                                    <td colSpan={8} className="px-6 py-0">
-                                        <div
-                                            className={`grid overflow-hidden transition-[grid-template-rows,opacity] duration-[400ms] ease-out ${
-                                                isExpanded
-                                                    ? "grid-rows-[1fr] opacity-100"
-                                                    : "grid-rows-[0fr] opacity-0"
-                                            }`}
-                                        >
-                                            <div className="overflow-hidden">
-                                                <div className="px-1 pb-5 pt-3">
-                                                    <MedicationListInline
-                                                        boarderId={boarder.id}
-                                                        medications={boarder.medications}
-                                                    />
+                                {isExpanded ? (
+                                    <tr
+                                        id={`boarder-medications-${boarder.id}`}
+                                        className="border-b border-border"
+                                    >
+                                        <td colSpan={8} className="px-6 py-0">
+                                            <div className="grid grid-rows-[1fr] overflow-hidden opacity-100 transition-[grid-template-rows,opacity] duration-[400ms] ease-out">
+                                                <div className="overflow-hidden">
+                                                    <div className="px-1 pb-5 pt-3">
+                                                        <MedicationListInline
+                                                            boarderId={boarder.id}
+                                                            medications={boarder.medications}
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                </tr>
+                                        </td>
+                                    </tr>
+                                ) : null}
                             </Fragment>
                         );
                     })}

@@ -11,6 +11,24 @@ import {
 import { eq, and, desc } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
+const toIsoString = (value: Date | string | null): string | null => {
+    if (!value) {
+        return null;
+    }
+
+    const parsed = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+        return null;
+    }
+
+    return parsed.toISOString();
+};
+
+const toIsoStringOrFallback = (value: Date | string): string => {
+    const iso = toIsoString(value);
+    return iso || new Date(value).toISOString();
+};
+
 export const POST = async (req: NextRequest) => {
     try {
         const body = await req.json();
@@ -143,22 +161,16 @@ export const GET = async () => {
                 timingType: row.medications.timingType as "clock" | "slot",
                 administrationTime: row.medications.administrationTime,
                 daySlot: row.medications.daySlot as "morning" | "night" | null,
-                startDate: String(row.medications.startDate),
-                endDate: row.medications.endDate ? String(row.medications.endDate) : null,
+                startDate: toIsoStringOrFallback(row.medications.startDate),
+                endDate: toIsoString(row.medications.endDate),
                 instructions: row.medications.instructions,
                 administeredBy: row.medications.administeredBy,
-                lastAdministeredAt: row.medications.lastAdministeredAt
-                    ? String(row.medications.lastAdministeredAt)
-                    : null,
+                lastAdministeredAt: toIsoString(row.medications.lastAdministeredAt),
                 latestLogAction: latestLog
                     ? (latestLog.actionType as "administered" | "skipped" | "missed")
                     : null,
-                latestLogScheduledFor: latestLog?.scheduledFor
-                    ? String(latestLog.scheduledFor)
-                    : null,
-                latestLogCreatedAt: latestLog?.createdAt
-                    ? String(latestLog.createdAt)
-                    : null,
+                latestLogScheduledFor: toIsoString(latestLog?.scheduledFor || null),
+                latestLogCreatedAt: toIsoString(latestLog?.createdAt || null),
             });
         }
     }
