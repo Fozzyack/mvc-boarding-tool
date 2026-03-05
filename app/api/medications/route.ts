@@ -8,6 +8,13 @@ export const POST = async (req: NextRequest) => {
     try {
         const body = await req.json();
         const session = (await getSession()) as sessionPayload;
+        const isOneOff = Boolean(body.isOneOff);
+        const scheduleType = isOneOff ? "one_off" : "recurring";
+        const timingType = body.timingType;
+        const intervalDays =
+            body.intervalDays === null || body.intervalDays === undefined || body.intervalDays === ""
+                ? null
+                : Number(body.intervalDays);
 
         if (!session) {
             return NextResponse.json(
@@ -20,7 +27,6 @@ export const POST = async (req: NextRequest) => {
             !body.boarderId ||
             !body.name ||
             !body.dosage ||
-            !body.frequency ||
             !body.startDate
         ) {
             return NextResponse.json(
@@ -29,11 +35,61 @@ export const POST = async (req: NextRequest) => {
             );
         }
 
+        if (
+            !isOneOff &&
+            (typeof intervalDays !== "number" || !Number.isInteger(intervalDays) || intervalDays < 1)
+        ) {
+            return NextResponse.json(
+                { msg: "Recurring medications need a valid day interval" },
+                { status: 400 },
+            );
+        }
+
+        if (isOneOff && intervalDays !== null) {
+            return NextResponse.json(
+                { msg: "One-off medications cannot include an interval" },
+                { status: 400 },
+            );
+        }
+
+        if (timingType !== "clock" && timingType !== "slot") {
+            return NextResponse.json(
+                { msg: "Invalid timing type" },
+                { status: 400 },
+            );
+        }
+
+        const administrationTime = timingType === "clock" ? body.administrationTime : null;
+        const daySlot = timingType === "slot" ? body.daySlot : null;
+
+        if (timingType === "clock") {
+            const validTime =
+                typeof administrationTime === "string" &&
+                /^([01]\d|2[0-3]):([0-5]\d)$/.test(administrationTime);
+            if (!validTime) {
+                return NextResponse.json(
+                    { msg: "Invalid administration time" },
+                    { status: 400 },
+                );
+            }
+        }
+
+        if (timingType === "slot" && daySlot !== "morning" && daySlot !== "night") {
+            return NextResponse.json(
+                { msg: "Day slot must be morning or night" },
+                { status: 400 },
+            );
+        }
+
         await db.insert(medicationTable).values({
             boarderId: body.boarderId,
             name: body.name,
             dosage: body.dosage,
-            frequency: body.frequency,
+            scheduleType,
+            intervalDays,
+            timingType,
+            administrationTime,
+            daySlot,
             startDate: body.startDate,
             endDate: body.endDate || null,
             instructions: body.instructions || null,

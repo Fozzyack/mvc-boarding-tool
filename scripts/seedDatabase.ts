@@ -91,7 +91,10 @@ const seed = async () => {
         .values({
             name: "Carprofen",
             dosage: "50mg",
-            frequency: "1 week",
+            scheduleType: "recurring",
+            intervalDays: 1,
+            timingType: "slot",
+            daySlot: "morning",
             startDate: "2025-02-01",
             instructions: "Give with food",
             boarderId: boarder.id,
@@ -102,9 +105,11 @@ const seed = async () => {
     const [medication2] = await db
         .insert(medicationTable)
         .values({
-            name: "Homing ballistic missle",
+            name: "Apoquel",
             dosage: "20kg",
-            frequency: "3 Days",
+            scheduleType: "one_off",
+            timingType: "clock",
+            administrationTime: "19:30",
             startDate: "2025-02-02",
             instructions: "Give with food",
             boarderId: boarder.id,
