@@ -17,7 +17,8 @@ import { useState } from "react";
 const STATUS_CARD_STYLE: Record<MedicationStatus, string> = {
     due_now: "border-red-200 bg-gradient-to-r from-red-50 to-white",
     due_soon: "border-amber-200 bg-gradient-to-r from-amber-50 to-white",
-    scheduled: "border-slate-200 bg-gradient-to-r from-slate-50 to-white",
+    scheduled:
+        "border-sky-300 border-dashed bg-gradient-to-r from-sky-50 via-cyan-50 to-white shadow-[inset_0_0_0_1px_rgba(14,165,233,0.1)]",
     overdue: "border-rose-200 bg-gradient-to-r from-rose-50 to-white",
     completed: "border-emerald-200 bg-gradient-to-r from-emerald-50 to-white",
     skipped: "border-orange-200 bg-gradient-to-r from-orange-50 to-white",

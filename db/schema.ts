@@ -134,3 +134,7 @@ export const medicationAdministrationLogTable = pgTable("medication_administrati
         .default(sql`(CURRENT_TIMESTAMP)`)
         .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
 });
+
+
+
+

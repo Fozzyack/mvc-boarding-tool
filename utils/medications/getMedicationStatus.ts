@@ -10,8 +10,8 @@ export type MedicationStatus =
     | "skipped"
     | "missed";
 
-const DUE_NOW_WINDOW_MINUTES = 15;
-const DUE_SOON_WINDOW_MINUTES = 60;
+const DUE_NOW_WINDOW_MINUTES = 60;
+const DUE_SOON_WINDOW_MINUTES = 240;
 const DUE_MATCH_WINDOW_MINUTES = 1;
 
 const parseDateInput = (value: string | null): Date | null => {
