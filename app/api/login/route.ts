@@ -15,7 +15,7 @@ export const POST = async (req: NextRequest) => {
             : "";
     const normalizedCode = typeof code === "string" ? code.trim() : "";
 
-    const isOrganizationCodeValid = /^[A-Z0-9-]{4,12}$/.test(
+    const isOrganizationCodeValid = /^[A-Z0-9-]{4,63}$/.test(
         normalizedOrganizationCode,
     );
 
@@ -69,7 +69,7 @@ export const POST = async (req: NextRequest) => {
         console.error(error);
         return NextResponse.json(
             { err: "There was an error retrieving data" },
-            { status: 400 },
+            { status: 500 },
         );
     }
 

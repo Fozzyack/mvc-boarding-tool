@@ -74,7 +74,7 @@ export const boardersTable = pgTable("boarders", {
     startDate: date().notNull(),
     endDate: date().notNull(),
 
-    organisationId: uuid().references(() => businessTable.id),
+    organisationId: uuid().notNull().references(() => businessTable.id),
     createdBy: uuid().references(() => usersTable.id),
 
     createdAt: timestamp().notNull().defaultNow(),
@@ -107,7 +107,7 @@ export const medicationTable = pgTable("medications", {
     boarderId: uuid()
         .references(() => boardersTable.id)
         .notNull(),
-    organisationId: uuid().references(() => businessTable.id),
+    organisationId: uuid().notNull().references(() => businessTable.id),
     createdAt: timestamp().notNull().defaultNow(),
     updatedAt: timestamp()
         .notNull()
