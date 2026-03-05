@@ -3,6 +3,7 @@
 import MedicationStatusBadge from "@/components/medications/MedicationStatusBadge";
 import MedicationActionConfirmModal from "@/components/medications/MedicationActionConfirmModal";
 import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
 import { useBoardersContext } from "@/contexts/BoardersContext";
 import type { MedicationLogAction } from "@/types";
 import getBackendUrl from "@/utils/getBackendUrl";
@@ -28,9 +29,20 @@ const FILTER_OPTIONS: Array<{ label: string; value: MedicationStatus | "all" }> 
     { label: "Missed", value: "missed" },
 ];
 
+const STATUS_LABELS: Record<MedicationStatus, string> = {
+    due_now: "Due now",
+    due_soon: "Due soon",
+    overdue: "Overdue",
+    scheduled: "Scheduled",
+    completed: "Completed",
+    skipped: "Skipped",
+    missed: "Missed",
+};
+
 const MedicationsPage = () => {
     const { boarders, refreshBoarders } = useBoardersContext();
     const [activeFilter, setActiveFilter] = useState<MedicationStatus | "all">("due_now");
+    const [searchQuery, setSearchQuery] = useState<string>("");
     const [updatingMedicationId, setUpdatingMedicationId] = useState<string | null>(null);
     const [pendingAction, setPendingAction] = useState<PendingMedicationAction | null>(null);
 
@@ -82,7 +94,26 @@ const MedicationsPage = () => {
                 ? flattened
                 : flattened.filter((item) => item.status === activeFilter);
 
-        return filtered.sort((left, right) => {
+        const normalizedQuery = searchQuery.trim().toLowerCase();
+        const searched =
+            normalizedQuery.length === 0
+                ? filtered
+                : filtered.filter((item) => {
+                      const searchableContent = [
+                          item.boarderName,
+                          item.medication.name,
+                          item.medication.dosage,
+                          getMedicationTimingLabel(item.medication),
+                          item.ownerName || "N/A",
+                          STATUS_LABELS[item.status],
+                      ]
+                          .join(" ")
+                          .toLowerCase();
+
+                      return searchableContent.includes(normalizedQuery);
+                  });
+
+        return searched.sort((left, right) => {
             const order: Record<MedicationStatus, number> = {
                 due_now: 1,
                 overdue: 2,
@@ -95,7 +126,12 @@ const MedicationsPage = () => {
 
             return order[left.status] - order[right.status];
         });
-    }, [activeFilter, boarders]);
+    }, [activeFilter, boarders, searchQuery]);
+
+    const emptyStateMessage =
+        searchQuery.trim().length > 0
+            ? "No medication tasks match this filter and search."
+            : "No medication tasks match this filter.";
 
     return (
         <div className="space-y-4">
@@ -104,24 +140,35 @@ const MedicationsPage = () => {
                 <p className="text-text-muted">Shift-wide view of medication tasks across all boarders.</p>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-                {FILTER_OPTIONS.map((filterOption) => {
-                    const isActive = activeFilter === filterOption.value;
-                    return (
-                        <button
-                            key={filterOption.value}
-                            type="button"
-                            className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
-                                isActive
-                                    ? "border-brand/30 bg-brand/10 text-brand"
-                                    : "border-border bg-white text-text-muted hover:border-brand/20 hover:text-brand"
-                            }`}
-                            onClick={() => setActiveFilter(filterOption.value)}
-                        >
-                            {filterOption.label}
-                        </button>
-                    );
-                })}
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-wrap gap-2">
+                    {FILTER_OPTIONS.map((filterOption) => {
+                        const isActive = activeFilter === filterOption.value;
+                        return (
+                            <button
+                                key={filterOption.value}
+                                type="button"
+                                className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
+                                    isActive
+                                        ? "border-brand/30 bg-brand/10 text-brand"
+                                        : "border-border bg-white text-text-muted hover:border-brand/20 hover:text-brand"
+                                }`}
+                                onClick={() => setActiveFilter(filterOption.value)}
+                            >
+                                {filterOption.label}
+                            </button>
+                        );
+                    })}
+                </div>
+                <div className="w-full md:max-w-sm">
+                    <Input
+                        value={searchQuery}
+                        onChange={(event) => setSearchQuery(event.target.value)}
+                        type="search"
+                        placeholder="Search medication queue..."
+                        aria-label="Search medication queue"
+                    />
+                </div>
             </div>
 
             <div className="ui-card overflow-hidden">
@@ -140,7 +187,7 @@ const MedicationsPage = () => {
                         {queue.length === 0 ? (
                             <tr>
                                 <td colSpan={6} className="px-4 py-8 text-center text-text-muted">
-                                    No medication tasks match this filter.
+                                    {emptyStateMessage}
                                 </td>
                             </tr>
                         ) : (
