@@ -18,6 +18,7 @@ export const businessTable = pgTable("businesses", {
     id: uuid().primaryKey().unique().defaultRandom(),
     name: varchar({ length: 255 }).notNull().unique(),
     email: varchar({ length: 255 }).notNull(),
+    organisationCode: varchar({ length: 63 }).notNull().unique(),
     createdAt: timestamp().notNull().defaultNow(),
     updatedAt: timestamp()
         .notNull()

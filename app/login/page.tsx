@@ -7,11 +7,13 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 const LoginPage = () => {
+    const organizationCodeInput = useRef<HTMLInputElement>(null);
     const codeInput = useRef<HTMLInputElement>(null);
     const passwordInput = useRef<HTMLInputElement>(null);
     const router = useRouter();
 
     const [formInfo, setFormInfo] = useState({
+        organizationCode: "",
         code: "",
         password: "",
     });
@@ -24,7 +26,10 @@ const LoginPage = () => {
         setShowPassword((prev) => !prev);
     };
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
+        const value =
+            e.target.name === "organizationCode"
+                ? e.target.value.toUpperCase()
+                : e.target.value;
         setFormInfo((prev) => ({ ...prev, [e.target.name]: value }));
     };
 
@@ -37,6 +42,7 @@ const LoginPage = () => {
                     "Content-type": "application/json",
                 },
                 body: JSON.stringify({
+                    organizationCode: formInfo.organizationCode,
                     code: formInfo.code,
                     password: formInfo.password,
                 }),
@@ -137,8 +143,44 @@ const LoginPage = () => {
                 >
                     <h4>Welcome!</h4>
                     <div className="space-y-1">
+                        <label className="block" htmlFor="organization-code-input">
+                            Organization Code:
+                        </label>
+                        <div
+                            onClick={() => {
+                                organizationCodeInput.current?.focus();
+                            }}
+                            className="ui-icon-field transition ease-in-out duration-150"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={1.5}
+                                stroke="currentColor"
+                                className="size-6"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M3.75 4.5h16.5a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H3.75a.75.75 0 0 1-.75-.75V5.25a.75.75 0 0 1 .75-.75Zm0 3.75h16.5"
+                                />
+                            </svg>
+
+                            <Input
+                                ref={organizationCodeInput}
+                                id="organization-code-input"
+                                name="organizationCode"
+                                value={formInfo.organizationCode}
+                                onChange={handleInputChange}
+                                className="ui-icon-input border-none px-0 py-0 focus:ring-0"
+                                placeholder="MORLEY-VC"
+                            />
+                        </div>
+                    </div>
+                    <div className="space-y-1">
                         <label className="block" htmlFor="code-input">
-                            User Code:
+                            Client Code:
                         </label>
                         <div
                             onClick={() => {

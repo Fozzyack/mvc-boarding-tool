@@ -57,6 +57,13 @@
       "when": 1770887952163,
       "tag": "0007_purple_moonstone",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1772693953482,
+      "tag": "0008_flippant_mandarin",
+      "breakpoints": true
     }
   ]
 }
