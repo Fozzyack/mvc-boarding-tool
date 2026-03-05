@@ -32,7 +32,7 @@ export const usersTable = pgTable("users", {
     id: uuid().primaryKey().unique().defaultRandom(),
     name: varchar({ length: 255 }).notNull(),
     passwordHash: varchar({ length: 300 }).notNull(),
-    code: varchar({ length: 255 }).unique(),
+    code: varchar({ length: 255 }).notNull(),
     isAdmin: boolean().default(false).notNull(),
     isNew: boolean().default(true).notNull(),
     isActive: boolean().default(true).notNull(),
