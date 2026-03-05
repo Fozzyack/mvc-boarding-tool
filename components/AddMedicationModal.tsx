@@ -22,7 +22,11 @@ const MedicationFormModal = ({
         boarderId: boarderId || "",
         name: "",
         dosage: "",
-        frequency: "",
+        isOneOff: false,
+        intervalDays: "1",
+        timingType: "slot",
+        administrationTime: "",
+        daySlot: "morning",
         startDate: "",
         endDate: "",
         instructions: "",
@@ -36,6 +40,10 @@ const MedicationFormModal = ({
         setFormValues((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
+    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormValues((prev) => ({ ...prev, [e.target.name]: e.target.checked }));
+    };
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
@@ -46,9 +54,21 @@ const MedicationFormModal = ({
                     boarderId: formValues.boarderId,
                     name: formValues.name,
                     dosage: formValues.dosage,
-                    frequency: formValues.frequency,
+                    isOneOff: formValues.isOneOff,
+                    intervalDays: formValues.isOneOff
+                        ? null
+                        : Number(formValues.intervalDays),
+                    timingType: formValues.timingType,
+                    administrationTime:
+                        formValues.timingType === "clock"
+                            ? formValues.administrationTime
+                            : null,
+                    daySlot:
+                        formValues.timingType === "slot"
+                            ? formValues.daySlot
+                            : null,
                     startDate: formValues.startDate,
-                    endDate: formValues.endDate || null,
+                    endDate: formValues.isOneOff ? null : formValues.endDate || null,
                     instructions: formValues.instructions || null,
                 }),
             });
@@ -113,36 +133,103 @@ const MedicationFormModal = ({
                             required
                         />
                     </FormField>
-                    <FormField label="Frequency" htmlFor="frequency" required>
-                        <Input
-                            id="frequency"
-                            name="frequency"
-                            value={formValues.frequency}
-                            onChange={handleInputChange}
-                            placeholder="Twice daily"
-                            required
+                    <div className="flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 md:col-span-2">
+                        <input
+                            id="isOneOff"
+                            name="isOneOff"
+                            type="checkbox"
+                            checked={formValues.isOneOff}
+                            onChange={handleCheckboxChange}
+                            className="size-4 accent-brand"
                         />
-                    </FormField>
-                    <FormField label="Start Date" htmlFor="startDate" required>
-                        <Input
-                            id="startDate"
-                            type="date"
-                            name="startDate"
-                            value={formValues.startDate}
-                            onChange={handleInputChange}
-                            required
-                        />
-                    </FormField>
-                    <div className="md:col-span-2">
-                        <FormField label="End Date" htmlFor="endDate">
+                        <label htmlFor="isOneOff" className="text-sm font-medium text-text">
+                            One-time dose
+                        </label>
+                    </div>
+                    {!formValues.isOneOff && (
+                        <FormField label="Every X days" htmlFor="intervalDays" required>
                             <Input
-                                id="endDate"
-                                type="date"
-                                name="endDate"
-                                value={formValues.endDate}
+                                id="intervalDays"
+                                name="intervalDays"
+                                type="number"
+                                min={1}
+                                step={1}
+                                value={formValues.intervalDays}
                                 onChange={handleInputChange}
+                                placeholder="1"
+                                required
                             />
                         </FormField>
+                    )}
+                    <div className="grid grid-cols-1 gap-3 md:col-span-2 md:grid-cols-2">
+                        <FormField label="Timing" htmlFor="timingType" required>
+                            <Select
+                                id="timingType"
+                                name="timingType"
+                                value={formValues.timingType}
+                                onChange={handleInputChange}
+                                required
+                            >
+                                <option value="slot">Morning or night</option>
+                                <option value="clock">Specific time</option>
+                            </Select>
+                        </FormField>
+                        {formValues.timingType === "clock" ? (
+                            <FormField
+                                label="Administration Time"
+                                htmlFor="administrationTime"
+                                required
+                            >
+                                <Input
+                                    id="administrationTime"
+                                    name="administrationTime"
+                                    type="time"
+                                    value={formValues.administrationTime}
+                                    onChange={handleInputChange}
+                                    required
+                                />
+                            </FormField>
+                        ) : (
+                            <FormField label="Time of day" htmlFor="daySlot" required>
+                                <Select
+                                    id="daySlot"
+                                    name="daySlot"
+                                    value={formValues.daySlot}
+                                    onChange={handleInputChange}
+                                    required
+                                >
+                                    <option value="morning">Morning</option>
+                                    <option value="night">Night</option>
+                                </Select>
+                            </FormField>
+                        )}
+                    </div>
+                    <div className="grid grid-cols-1 gap-3 md:col-span-2 md:grid-cols-2">
+                        <FormField
+                            label={formValues.isOneOff ? "Administration Date" : "Start Date"}
+                            htmlFor="startDate"
+                            required
+                        >
+                            <Input
+                                id="startDate"
+                                type="date"
+                                name="startDate"
+                                value={formValues.startDate}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </FormField>
+                        {!formValues.isOneOff && (
+                            <FormField label="End Date" htmlFor="endDate">
+                                <Input
+                                    id="endDate"
+                                    type="date"
+                                    name="endDate"
+                                    value={formValues.endDate}
+                                    onChange={handleInputChange}
+                                />
+                            </FormField>
+                        )}
                     </div>
                     <div className="md:col-span-2">
                         <FormField label="Instructions" htmlFor="instructions">

@@ -57,6 +57,13 @@
       "when": 1770887952163,
       "tag": "0007_purple_moonstone",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1772611200000,
+      "tag": "0008_modern_medications",
+      "breakpoints": true
     }
   ]
 }
