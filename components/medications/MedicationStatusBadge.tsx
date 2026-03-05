@@ -1,0 +1,25 @@
+import { MedicationStatus } from "@/utils/medications/getMedicationStatus";
+
+const STATUS_STYLE: Record<MedicationStatus, string> = {
+    due_now: "bg-red-100 text-red-700 ring-1 ring-red-200",
+    due_soon: "bg-amber-100 text-amber-700 ring-1 ring-amber-200",
+    scheduled: "bg-slate-100 text-slate-700 ring-1 ring-slate-200",
+    overdue: "bg-rose-100 text-rose-700 ring-1 ring-rose-200",
+};
+
+const STATUS_LABEL: Record<MedicationStatus, string> = {
+    due_now: "Due now",
+    due_soon: "Due soon",
+    scheduled: "Scheduled",
+    overdue: "Overdue",
+};
+
+const MedicationStatusBadge = ({ status }: { status: MedicationStatus }) => {
+    return (
+        <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_STYLE[status]}`}>
+            {STATUS_LABEL[status]}
+        </span>
+    );
+};
+
+export default MedicationStatusBadge;

@@ -80,6 +80,7 @@ const BoarderModal = ({
     setIsOpen: (value: boolean) => void;
 }) => {
     const [currentStep, setCurrentStep] = useState(1);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [formValues, setFormValues] = useState({
         name: "",
         animalType: "",
@@ -113,6 +114,7 @@ const BoarderModal = ({
 
     const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setErrorMessage(null);
         try {
             const res = await fetch(`${getBackendUrl()}/api/boarders`, {
                 method: "POST",
@@ -135,14 +137,30 @@ const BoarderModal = ({
                 }),
             });
             if (!res.ok) {
-                return console.error(
-                    "There was an Error (probably should put a popup here)",
-                );
+                let serverMessage = "Could not add boarder. Please try again.";
+
+                try {
+                    const data = await res.json();
+                    if (typeof data?.msg === "string") {
+                        serverMessage = data.msg;
+                    }
+                } catch {
+                    serverMessage = "Could not add boarder. Please try again.";
+                }
+
+                if (res.status === 401) {
+                    setErrorMessage(`${serverMessage} Please log out and log back in.`);
+                    return;
+                }
+
+                setErrorMessage(serverMessage);
+                return;
             }
             const data = await res.json();
             console.log(data);
             setIsOpen(false);
             refreshBoarders();
+            setErrorMessage(null);
             setFormValues({
                 name: "",
                 animalType: "",
@@ -355,6 +373,12 @@ const BoarderModal = ({
                             />
                         </div>
                     )}
+
+                    {errorMessage ? (
+                        <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                            {errorMessage}
+                        </div>
+                    ) : null}
 
                     <div className="mt-6 flex justify-between">
                         {currentStep > 1 ? (

@@ -8,6 +8,9 @@ import {
 } from "@/db/schema";
 import bcrypt from "bcrypt";
 
+const DEFAULT_TEST_ORGANISATION_ID = "00000000-0000-4000-8000-000000000001";
+const DEFAULT_TEST_USER_ID = "00000000-0000-4000-8000-000000000002";
+
 /*
  * Simple seeder
  * Inserts a sample business and sample user.
@@ -47,9 +50,14 @@ const delete_from_database = async () => {
 
 const seed = async () => {
     checkEnv();
+    const organisationId =
+        process.env.TEST_ORGANISATION_ID || DEFAULT_TEST_ORGANISATION_ID;
+    const userId = process.env.TEST_USER_ID || DEFAULT_TEST_USER_ID;
+
     const [business] = await db
         .insert(businessTable)
         .values({
+            id: organisationId,
             name: process.env.TEST_ORGANISATION_NAME!,
             email: process.env.TEST_ORGANISATION_EMAIL!,
             organisationCode: process.env.TEST_ORGANISATION_CODE!,
@@ -64,6 +72,7 @@ const seed = async () => {
     const [user] = await db
         .insert(usersTable)
         .values({
+            id: userId,
             name: process.env.TEST_USER_NAME!,
             passwordHash: hashedPassword,
             code: process.env.TEST_USER_CODE!,
