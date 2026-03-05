@@ -161,59 +161,65 @@ const MedicationFormModal = ({
                             />
                         </FormField>
                     )}
-                    <FormField label="Timing" htmlFor="timingType" required>
-                        <Select
-                            id="timingType"
-                            name="timingType"
-                            value={formValues.timingType}
-                            onChange={handleInputChange}
+                    <div className="grid grid-cols-1 gap-3 md:col-span-2 md:grid-cols-2">
+                        <FormField label="Timing" htmlFor="timingType" required>
+                            <Select
+                                id="timingType"
+                                name="timingType"
+                                value={formValues.timingType}
+                                onChange={handleInputChange}
+                                required
+                            >
+                                <option value="slot">Morning or night</option>
+                                <option value="clock">Specific time</option>
+                            </Select>
+                        </FormField>
+                        {formValues.timingType === "clock" ? (
+                            <FormField
+                                label="Administration Time"
+                                htmlFor="administrationTime"
+                                required
+                            >
+                                <Input
+                                    id="administrationTime"
+                                    name="administrationTime"
+                                    type="time"
+                                    value={formValues.administrationTime}
+                                    onChange={handleInputChange}
+                                    required
+                                />
+                            </FormField>
+                        ) : (
+                            <FormField label="Time of day" htmlFor="daySlot" required>
+                                <Select
+                                    id="daySlot"
+                                    name="daySlot"
+                                    value={formValues.daySlot}
+                                    onChange={handleInputChange}
+                                    required
+                                >
+                                    <option value="morning">Morning</option>
+                                    <option value="night">Night</option>
+                                </Select>
+                            </FormField>
+                        )}
+                    </div>
+                    <div className="grid grid-cols-1 gap-3 md:col-span-2 md:grid-cols-2">
+                        <FormField
+                            label={formValues.isOneOff ? "Administration Date" : "Start Date"}
+                            htmlFor="startDate"
                             required
                         >
-                            <option value="slot">Morning or night</option>
-                            <option value="clock">Specific time</option>
-                        </Select>
-                    </FormField>
-                    {formValues.timingType === "clock" ? (
-                        <FormField label="Administration Time" htmlFor="administrationTime" required>
                             <Input
-                                id="administrationTime"
-                                name="administrationTime"
-                                type="time"
-                                value={formValues.administrationTime}
+                                id="startDate"
+                                type="date"
+                                name="startDate"
+                                value={formValues.startDate}
                                 onChange={handleInputChange}
                                 required
                             />
                         </FormField>
-                    ) : (
-                        <FormField label="Time of day" htmlFor="daySlot" required>
-                            <Select
-                                id="daySlot"
-                                name="daySlot"
-                                value={formValues.daySlot}
-                                onChange={handleInputChange}
-                                required
-                            >
-                                <option value="morning">Morning</option>
-                                <option value="night">Night</option>
-                            </Select>
-                        </FormField>
-                    )}
-                    <FormField
-                        label={formValues.isOneOff ? "Administration Date" : "Start Date"}
-                        htmlFor="startDate"
-                        required
-                    >
-                        <Input
-                            id="startDate"
-                            type="date"
-                            name="startDate"
-                            value={formValues.startDate}
-                            onChange={handleInputChange}
-                            required
-                        />
-                    </FormField>
-                    {!formValues.isOneOff && (
-                        <div className="md:col-span-2">
+                        {!formValues.isOneOff && (
                             <FormField label="End Date" htmlFor="endDate">
                                 <Input
                                     id="endDate"
@@ -223,8 +229,8 @@ const MedicationFormModal = ({
                                     onChange={handleInputChange}
                                 />
                             </FormField>
-                        </div>
-                    )}
+                        )}
+                    </div>
                     <div className="md:col-span-2">
                         <FormField label="Instructions" htmlFor="instructions">
                             <Textarea
