@@ -1,17 +1,26 @@
+"use client";
+
 import AddMedicationModal from "@/components/AddMedicationModal";
 import MedicationStatusBadge from "@/components/medications/MedicationStatusBadge";
+import Button from "@/components/ui/Button";
+import { useBoardersContext } from "@/contexts/BoardersContext";
 import { BoarderMedicationSummary } from "@/types";
+import getBackendUrl from "@/utils/getBackendUrl";
 import getMedicationScheduleLabel from "@/utils/medications/getMedicationScheduleLabel";
 import getMedicationStatus, {
     type MedicationStatus,
 } from "@/utils/medications/getMedicationStatus";
 import getMedicationTimingLabel from "@/utils/medications/getMedicationTimingLabel";
+import { useState } from "react";
 
 const STATUS_CARD_STYLE: Record<MedicationStatus, string> = {
     due_now: "border-red-200 bg-gradient-to-r from-red-50 to-white",
     due_soon: "border-amber-200 bg-gradient-to-r from-amber-50 to-white",
     scheduled: "border-slate-200 bg-gradient-to-r from-slate-50 to-white",
     overdue: "border-rose-200 bg-gradient-to-r from-rose-50 to-white",
+    completed: "border-emerald-200 bg-gradient-to-r from-emerald-50 to-white",
+    skipped: "border-orange-200 bg-gradient-to-r from-orange-50 to-white",
+    missed: "border-fuchsia-200 bg-gradient-to-r from-fuchsia-50 to-white",
 };
 
 const formatLastGiven = (value: string | null): string => {
@@ -36,6 +45,39 @@ const MedicationListInline = ({
     boarderId,
     medications,
 }: MedicationListInlineProps) => {
+    const { refreshBoarders } = useBoardersContext();
+    const [updatingMedicationId, setUpdatingMedicationId] = useState<string | null>(null);
+
+    const handleMedicationAction = async (
+        medicationId: string,
+        actionType: "administered" | "skipped" | "missed",
+    ) => {
+        setUpdatingMedicationId(medicationId);
+        try {
+            const response = await fetch(
+                `${getBackendUrl()}/api/medications/${medicationId}/administer`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ actionType }),
+                },
+            );
+
+            if (!response.ok) {
+                console.error("Failed to update medication status");
+                return;
+            }
+
+            refreshBoarders();
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setUpdatingMedicationId(null);
+        }
+    };
+
     if (medications.length === 0) {
         return (
             <div className="rounded-2xl border border-dashed border-border bg-surface p-4 text-center">
@@ -86,6 +128,25 @@ const MedicationListInline = ({
                                     Instructions: {medication.instructions}
                                 </p>
                             ) : null}
+                            <div className="mt-3">
+                                <div className="flex items-center gap-2">
+                                    <Button
+                                        size="sm"
+                                        onClick={() => handleMedicationAction(medication.id, "administered")}
+                                        disabled={updatingMedicationId === medication.id}
+                                    >
+                                        {updatingMedicationId === medication.id ? "Saving..." : "Mark given"}
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="secondary"
+                                        onClick={() => handleMedicationAction(medication.id, "skipped")}
+                                        disabled={updatingMedicationId === medication.id}
+                                    >
+                                        Skip
+                                    </Button>
+                                </div>
+                            </div>
                         </div>
                     );
                 })}

@@ -1,11 +1,18 @@
 import { BoarderMedicationSummary } from "@/types";
+import getMedicationDueAt from "@/utils/medications/getMedicationDueAt";
 
-export type MedicationStatus = "due_now" | "due_soon" | "scheduled" | "overdue";
+export type MedicationStatus =
+    | "due_now"
+    | "due_soon"
+    | "scheduled"
+    | "overdue"
+    | "completed"
+    | "skipped"
+    | "missed";
 
 const DUE_NOW_WINDOW_MINUTES = 15;
 const DUE_SOON_WINDOW_MINUTES = 60;
-const MORNING_HOUR = 9;
-const NIGHT_HOUR = 20;
+const DUE_MATCH_WINDOW_MINUTES = 1;
 
 const parseDateInput = (value: string | null): Date | null => {
     if (!value) {
@@ -23,56 +30,6 @@ const parseDateInput = (value: string | null): Date | null => {
     }
 
     return parsed;
-};
-
-const addDays = (value: Date, days: number): Date => {
-    const date = new Date(value);
-    date.setDate(date.getDate() + days);
-    return date;
-};
-
-const toDateOnly = (value: Date): Date => {
-    return new Date(value.getFullYear(), value.getMonth(), value.getDate());
-};
-
-const getDayDiff = (left: Date, right: Date): number => {
-    const msPerDay = 24 * 60 * 60 * 1000;
-    const leftUtc = Date.UTC(left.getFullYear(), left.getMonth(), left.getDate());
-    const rightUtc = Date.UTC(right.getFullYear(), right.getMonth(), right.getDate());
-    return Math.floor((leftUtc - rightUtc) / msPerDay);
-};
-
-const getScheduledTime = (
-    medication: BoarderMedicationSummary,
-): { hour: number; minute: number } => {
-    if (medication.timingType === "clock" && medication.administrationTime) {
-        const [hours, minutes] = medication.administrationTime.split(":").map(Number);
-        return {
-            hour: Number.isNaN(hours) ? MORNING_HOUR : hours,
-            minute: Number.isNaN(minutes) ? 0 : minutes,
-        };
-    }
-
-    if (medication.daySlot === "night") {
-        return { hour: NIGHT_HOUR, minute: 0 };
-    }
-
-    return { hour: MORNING_HOUR, minute: 0 };
-};
-
-const buildDateTime = (
-    dateOnly: Date,
-    timing: { hour: number; minute: number },
-): Date => {
-    return new Date(
-        dateOnly.getFullYear(),
-        dateOnly.getMonth(),
-        dateOnly.getDate(),
-        timing.hour,
-        timing.minute,
-        0,
-        0,
-    );
 };
 
 const classifyStatus = (dueAt: Date, now: Date): MedicationStatus => {
@@ -93,49 +50,40 @@ const classifyStatus = (dueAt: Date, now: Date): MedicationStatus => {
     return "scheduled";
 };
 
+const getLoggedStatus = (medication: BoarderMedicationSummary, dueAt: Date): MedicationStatus | null => {
+    const loggedAt = parseDateInput(medication.latestLogScheduledFor);
+    if (!loggedAt || !medication.latestLogAction) {
+        return null;
+    }
+
+    const diffMinutes = Math.abs((loggedAt.getTime() - dueAt.getTime()) / (60 * 1000));
+    if (diffMinutes > DUE_MATCH_WINDOW_MINUTES) {
+        return null;
+    }
+
+    if (medication.latestLogAction === "administered") {
+        return "completed";
+    }
+
+    if (medication.latestLogAction === "skipped") {
+        return "skipped";
+    }
+
+    return "missed";
+};
+
 const getMedicationStatus = (
     medication: BoarderMedicationSummary,
     now: Date = new Date(),
 ): MedicationStatus => {
-    const startDate = parseDateInput(medication.startDate);
-    if (!startDate) {
+    const dueAt = getMedicationDueAt(medication, now);
+    if (!dueAt) {
         return "scheduled";
     }
 
-    const timing = getScheduledTime(medication);
-    const lastAdministeredAt = parseDateInput(medication.lastAdministeredAt);
-
-    if (medication.scheduleType === "one_off") {
-        const oneOffDueAt = buildDateTime(toDateOnly(startDate), timing);
-
-        if (lastAdministeredAt && lastAdministeredAt >= oneOffDueAt) {
-            return "scheduled";
-        }
-
-        return classifyStatus(oneOffDueAt, now);
-    }
-
-    const intervalDays = medication.intervalDays || 1;
-    const today = toDateOnly(now);
-    const startDay = toDateOnly(startDate);
-
-    let cycleDay = startDay;
-    const elapsedDays = getDayDiff(today, startDay);
-
-    if (elapsedDays > 0) {
-        const cyclesPassed = Math.floor(elapsedDays / intervalDays);
-        cycleDay = addDays(startDay, cyclesPassed * intervalDays);
-    }
-
-    let dueAt = buildDateTime(cycleDay, timing);
-
-    if (lastAdministeredAt && lastAdministeredAt >= dueAt) {
-        dueAt = buildDateTime(addDays(cycleDay, intervalDays), timing);
-    }
-
-    const endDate = parseDateInput(medication.endDate);
-    if (endDate && toDateOnly(dueAt) > toDateOnly(endDate)) {
-        return "scheduled";
+    const loggedStatus = getLoggedStatus(medication, dueAt);
+    if (loggedStatus) {
+        return loggedStatus;
     }
 
     return classifyStatus(dueAt, now);

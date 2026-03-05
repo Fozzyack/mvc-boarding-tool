@@ -114,3 +114,23 @@ export const medicationTable = pgTable("medications", {
         .default(sql`(CURRENT_TIMESTAMP)`)
         .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
 });
+
+export const medicationAdministrationLogTable = pgTable("medication_administration_logs", {
+    id: uuid().primaryKey().unique().defaultRandom(),
+    medicationId: uuid()
+        .notNull()
+        .references(() => medicationTable.id),
+    boarderId: uuid()
+        .notNull()
+        .references(() => boardersTable.id),
+    organisationId: uuid().notNull().references(() => businessTable.id),
+    actionType: varchar({ length: 20 }).notNull(),
+    scheduledFor: timestamp().notNull(),
+    performedBy: uuid().references(() => usersTable.id),
+    notes: text(),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+        .notNull()
+        .default(sql`(CURRENT_TIMESTAMP)`)
+        .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
+});

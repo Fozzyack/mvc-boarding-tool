@@ -3,6 +3,7 @@ import db from "@/db/drizzle";
 import {
     boardersTable,
     businessTable,
+    medicationAdministrationLogTable,
     medicationTable,
     usersTable,
 } from "@/db/schema";
@@ -38,6 +39,8 @@ const checkEnv = () => {
 };
 
 const delete_from_database = async () => {
+    console.log("Delete medication logs from medication administration log table");
+    await db.delete(medicationAdministrationLogTable);
     console.log("Delete medication from medication table");
     await db.delete(medicationTable);
     console.log("Delete boarders from boarders table");

@@ -1,8 +1,14 @@
 import { BoarderWithMedications, sessionPayload } from "@/types";
 import { getSession } from "@/utils/auth/auth";
 import db from "@/db/drizzle";
-import { boardersTable, businessTable, medicationTable, usersTable } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import {
+    boardersTable,
+    businessTable,
+    medicationAdministrationLogTable,
+    medicationTable,
+    usersTable,
+} from "@/db/schema";
+import { eq, and, desc } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
@@ -94,6 +100,24 @@ export const GET = async () => {
             ),
         );
 
+    const logs = await db
+        .select({
+            medicationId: medicationAdministrationLogTable.medicationId,
+            actionType: medicationAdministrationLogTable.actionType,
+            scheduledFor: medicationAdministrationLogTable.scheduledFor,
+            createdAt: medicationAdministrationLogTable.createdAt,
+        })
+        .from(medicationAdministrationLogTable)
+        .where(eq(medicationAdministrationLogTable.organisationId, session.organisationId))
+        .orderBy(desc(medicationAdministrationLogTable.createdAt));
+
+    const latestLogByMedicationId = new Map<string, (typeof logs)[number]>();
+    for (const log of logs) {
+        if (!latestLogByMedicationId.has(log.medicationId)) {
+            latestLogByMedicationId.set(log.medicationId, log);
+        }
+    }
+
     const boardersMap = new Map<string, BoarderWithMedications>();
     for (const row of query) {
         if (!boardersMap.has(row.boarders.id)) {
@@ -109,6 +133,7 @@ export const GET = async () => {
         }
 
         if (row.medications) {
+            const latestLog = latestLogByMedicationId.get(row.medications.id);
             boarderEntry.medications.push({
                 id: row.medications.id,
                 name: row.medications.name,
@@ -124,6 +149,15 @@ export const GET = async () => {
                 administeredBy: row.medications.administeredBy,
                 lastAdministeredAt: row.medications.lastAdministeredAt
                     ? String(row.medications.lastAdministeredAt)
+                    : null,
+                latestLogAction: latestLog
+                    ? (latestLog.actionType as "administered" | "skipped" | "missed")
+                    : null,
+                latestLogScheduledFor: latestLog?.scheduledFor
+                    ? String(latestLog.scheduledFor)
+                    : null,
+                latestLogCreatedAt: latestLog?.createdAt
+                    ? String(latestLog.createdAt)
                     : null,
             });
         }
