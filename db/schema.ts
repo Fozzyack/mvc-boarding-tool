@@ -5,6 +5,7 @@ import {
     date,
     decimal,
     integer,
+    pgEnum,
     pgTable,
     unique,
     uuid,
@@ -114,3 +115,32 @@ export const medicationTable = pgTable("medications", {
         .default(sql`(CURRENT_TIMESTAMP)`)
         .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
 });
+
+export const medicationLogActionEnum = pgEnum("medication_log_action", [
+    "administered",
+    "skipped",
+    "missed",
+]);
+
+export const medicationAdministrationLogTable = pgTable("medication_administration_logs", {
+    id: uuid().primaryKey().unique().defaultRandom(),
+    medicationId: uuid()
+        .notNull()
+        .references(() => medicationTable.id),
+    boarderId: uuid()
+        .notNull()
+        .references(() => boardersTable.id),
+    organisationId: uuid().notNull().references(() => businessTable.id),
+    actionType: medicationLogActionEnum().notNull(),
+    scheduledFor: timestamp().notNull(),
+    performedBy: uuid().references(() => usersTable.id),
+    notes: text(),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+        .notNull()
+        .default(sql`(CURRENT_TIMESTAMP)`)
+        .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
+});
+
+
+

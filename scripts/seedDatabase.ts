@@ -3,10 +3,24 @@ import db from "@/db/drizzle";
 import {
     boardersTable,
     businessTable,
+    medicationAdministrationLogTable,
     medicationTable,
     usersTable,
 } from "@/db/schema";
 import bcrypt from "bcrypt";
+
+const DEFAULT_TEST_ORGANISATION_ID = "00000000-0000-4000-8000-000000000001";
+const DEFAULT_TEST_USER_ID = "00000000-0000-4000-8000-000000000002";
+
+const formatDateForDb = (value: Date): string => {
+    return value.toISOString().slice(0, 10);
+};
+
+const addDays = (value: Date, days: number): Date => {
+    const next = new Date(value);
+    next.setDate(next.getDate() + days);
+    return next;
+};
 
 /*
  * Simple seeder
@@ -35,6 +49,8 @@ const checkEnv = () => {
 };
 
 const delete_from_database = async () => {
+    console.log("Delete medication logs from medication administration log table");
+    await db.delete(medicationAdministrationLogTable);
     console.log("Delete medication from medication table");
     await db.delete(medicationTable);
     console.log("Delete boarders from boarders table");
@@ -47,9 +63,14 @@ const delete_from_database = async () => {
 
 const seed = async () => {
     checkEnv();
+    const organisationId =
+        process.env.TEST_ORGANISATION_ID || DEFAULT_TEST_ORGANISATION_ID;
+    const userId = process.env.TEST_USER_ID || DEFAULT_TEST_USER_ID;
+
     const [business] = await db
         .insert(businessTable)
         .values({
+            id: organisationId,
             name: process.env.TEST_ORGANISATION_NAME!,
             email: process.env.TEST_ORGANISATION_EMAIL!,
             organisationCode: process.env.TEST_ORGANISATION_CODE!,
@@ -64,6 +85,7 @@ const seed = async () => {
     const [user] = await db
         .insert(usersTable)
         .values({
+            id: userId,
             name: process.env.TEST_USER_NAME!,
             passwordHash: hashedPassword,
             code: process.env.TEST_USER_CODE!,
@@ -83,6 +105,40 @@ const seed = async () => {
             ownerEmail: "john@example.com",
             startDate: "2025-02-01",
             endDate: "2025-02-07",
+            organisationId: business.id,
+            createdBy: user.id,
+        })
+        .returning();
+
+    const boardingStartDate = new Date();
+    const boardingEndDate = addDays(boardingStartDate, 7);
+    const [boarder2] = await db
+        .insert(boardersTable)
+        .values({
+            name: "Mochi",
+            animalType: "Cat",
+            species: "Domestic Shorthair",
+            ownerName: "Mia Carter",
+            ownerPhone: "555-0199",
+            ownerEmail: "mia@example.com",
+            startDate: formatDateForDb(boardingStartDate),
+            endDate: formatDateForDb(boardingEndDate),
+            organisationId: business.id,
+            createdBy: user.id,
+        })
+        .returning();
+
+    const [boarder3] = await db
+        .insert(boardersTable)
+        .values({
+            name: "Atlas",
+            animalType: "Dog",
+            species: "Border Collie",
+            ownerName: "Noah Singh",
+            ownerPhone: "555-0217",
+            ownerEmail: "noah@example.com",
+            startDate: formatDateForDb(boardingStartDate),
+            endDate: formatDateForDb(boardingEndDate),
             organisationId: business.id,
             createdBy: user.id,
         })
@@ -119,11 +175,117 @@ const seed = async () => {
         })
         .returning();
 
+    const [medication3] = await db
+        .insert(medicationTable)
+        .values({
+            name: "Gabapentin",
+            dosage: "75mg",
+            scheduleType: "recurring",
+            intervalDays: 1,
+            timingType: "slot",
+            daySlot: "night",
+            startDate: formatDateForDb(boardingStartDate),
+            endDate: formatDateForDb(boardingEndDate),
+            instructions: "Give after evening meal",
+            boarderId: boarder2.id,
+            organisationId: business.id,
+        })
+        .returning();
+
+    const [medication4] = await db
+        .insert(medicationTable)
+        .values({
+            name: "Prednisolone",
+            dosage: "5mg",
+            scheduleType: "recurring",
+            intervalDays: 2,
+            timingType: "clock",
+            administrationTime: "08:30",
+            startDate: formatDateForDb(boardingStartDate),
+            endDate: formatDateForDb(boardingEndDate),
+            instructions: "Administer with food",
+            boarderId: boarder2.id,
+            organisationId: business.id,
+        })
+        .returning();
+
+    const [medication5] = await db
+        .insert(medicationTable)
+        .values({
+            name: "Cerenia",
+            dosage: "16mg",
+            scheduleType: "one_off",
+            timingType: "clock",
+            administrationTime: "13:00",
+            startDate: formatDateForDb(addDays(boardingStartDate, 1)),
+            instructions: "Single anti-nausea dose",
+            boarderId: boarder2.id,
+            organisationId: business.id,
+        })
+        .returning();
+
+    const [medication6] = await db
+        .insert(medicationTable)
+        .values({
+            name: "Carprofen",
+            dosage: "75mg",
+            scheduleType: "recurring",
+            intervalDays: 1,
+            timingType: "clock",
+            administrationTime: "07:30",
+            startDate: formatDateForDb(boardingStartDate),
+            endDate: formatDateForDb(boardingEndDate),
+            instructions: "Give after breakfast",
+            boarderId: boarder3.id,
+            organisationId: business.id,
+        })
+        .returning();
+
+    const [medication7] = await db
+        .insert(medicationTable)
+        .values({
+            name: "Fluoxetine",
+            dosage: "10mg",
+            scheduleType: "recurring",
+            intervalDays: 1,
+            timingType: "slot",
+            daySlot: "morning",
+            startDate: formatDateForDb(boardingStartDate),
+            endDate: formatDateForDb(boardingEndDate),
+            instructions: "Keep routine timing daily",
+            boarderId: boarder3.id,
+            organisationId: business.id,
+        })
+        .returning();
+
+    const [medication8] = await db
+        .insert(medicationTable)
+        .values({
+            name: "Trazodone",
+            dosage: "100mg",
+            scheduleType: "one_off",
+            timingType: "clock",
+            administrationTime: "18:00",
+            startDate: formatDateForDb(addDays(boardingStartDate, 4)),
+            instructions: "One-time dose before evening handling",
+            boarderId: boarder3.id,
+            organisationId: business.id,
+        })
+        .returning();
+
     console.log(business);
     console.log(user);
     console.log(boarder);
+    console.log(boarder2);
+    console.log(boarder3);
     console.log(medication);
     console.log(medication2);
+    console.log(medication3);
+    console.log(medication4);
+    console.log(medication5);
+    console.log(medication6);
+    console.log(medication7);
+    console.log(medication8);
 
     console.log("Database seeded successfully!");
 };

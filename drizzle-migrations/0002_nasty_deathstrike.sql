@@ -1,0 +1,2 @@
+CREATE TYPE "public"."medication_log_action" AS ENUM('administered', 'skipped', 'missed');--> statement-breakpoint
+ALTER TABLE "medication_administration_logs" ALTER COLUMN "actionType" SET DATA TYPE "public"."medication_log_action" USING "actionType"::"public"."medication_log_action";

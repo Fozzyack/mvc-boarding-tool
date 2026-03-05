@@ -1,5 +1,5 @@
 "use client";
-import { Boarder } from "@/types";
+import { BoarderWithMedications } from "@/types";
 import getBackendUrl from "@/utils/getBackendUrl";
 import {
     createContext,
@@ -10,9 +10,9 @@ import {
 } from "react";
 
 type BoardersContextType = {
-    boarders: Boarder[];
+    boarders: BoarderWithMedications[];
     refreshBoarders: () => void;
-    addBoarder: (boarder: Boarder) => void;
+    addBoarder: (boarder: BoarderWithMedications) => void;
     removeBoarder: (id: string) => void;
 };
 
@@ -29,11 +29,11 @@ export const useBoardersContext = (): BoardersContextType => {
 };
 
 export const BoardersProvider = ({ children }: { children: ReactNode }) => {
-    const [boarders, setBoarders] = useState<Boarder[]>([]);
+    const [boarders, setBoarders] = useState<BoarderWithMedications[]>([]);
     const [trigger, setTrigger] = useState(0);
 
     const refreshBoarders = () => setTrigger((prev) => prev + 1);
-    const addBoarder = (boarder: Boarder) =>
+    const addBoarder = (boarder: BoarderWithMedications) =>
         setBoarders((prev) => [...prev, boarder]);
     const removeBoarder = (id: string) =>
         setBoarders((prev) => prev.filter((b) => b.id !== id));

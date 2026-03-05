@@ -1,9 +1,33 @@
-import { sessionPayload } from "@/types";
+import { BoarderWithMedications, sessionPayload } from "@/types";
 import { getSession } from "@/utils/auth/auth";
 import db from "@/db/drizzle";
-import { boardersTable, medicationTable } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import {
+    boardersTable,
+    businessTable,
+    medicationAdministrationLogTable,
+    medicationTable,
+    usersTable,
+} from "@/db/schema";
+import { eq, and, desc } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
+
+const toIsoString = (value: Date | string | null): string | null => {
+    if (!value) {
+        return null;
+    }
+
+    const parsed = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+        return null;
+    }
+
+    return parsed.toISOString();
+};
+
+const toIsoStringOrFallback = (value: Date | string): string => {
+    const iso = toIsoString(value);
+    return iso || new Date(value).toISOString();
+};
 
 export const POST = async (req: NextRequest) => {
     try {
@@ -13,6 +37,30 @@ export const POST = async (req: NextRequest) => {
             console.log("No JWT token found");
             return NextResponse.json(
                 { msg: "Cannot complete this action: unAuthorized" },
+                { status: 401 },
+            );
+        }
+
+        const [org] = await db
+            .select({ id: businessTable.id })
+            .from(businessTable)
+            .where(eq(businessTable.id, session.organisationId))
+            .limit(1);
+
+        const [user] = await db
+            .select({ id: usersTable.id })
+            .from(usersTable)
+            .where(
+                and(
+                    eq(usersTable.id, session.userId),
+                    eq(usersTable.organisationId, session.organisationId),
+                ),
+            )
+            .limit(1);
+
+        if (!org || !user) {
+            return NextResponse.json(
+                { msg: "Session is out of date. Please log in again." },
                 { status: 401 },
             );
         }
@@ -70,7 +118,25 @@ export const GET = async () => {
             ),
         );
 
-    const boardersMap = new Map();
+    const logs = await db
+        .select({
+            medicationId: medicationAdministrationLogTable.medicationId,
+            actionType: medicationAdministrationLogTable.actionType,
+            scheduledFor: medicationAdministrationLogTable.scheduledFor,
+            createdAt: medicationAdministrationLogTable.createdAt,
+        })
+        .from(medicationAdministrationLogTable)
+        .where(eq(medicationAdministrationLogTable.organisationId, session.organisationId))
+        .orderBy(desc(medicationAdministrationLogTable.createdAt));
+
+    const latestLogByMedicationId = new Map<string, (typeof logs)[number]>();
+    for (const log of logs) {
+        if (!latestLogByMedicationId.has(log.medicationId)) {
+            latestLogByMedicationId.set(log.medicationId, log);
+        }
+    }
+
+    const boardersMap = new Map<string, BoarderWithMedications>();
     for (const row of query) {
         if (!boardersMap.has(row.boarders.id)) {
             boardersMap.set(row.boarders.id, {
@@ -78,25 +144,37 @@ export const GET = async () => {
                 medications: [],
             });
         }
+
+        const boarderEntry = boardersMap.get(row.boarders.id);
+        if (!boarderEntry) {
+            continue;
+        }
+
         if (row.medications) {
-            boardersMap.get(row.boarders.id).medications.push({
+            const latestLog = latestLogByMedicationId.get(row.medications.id);
+            boarderEntry.medications.push({
                 id: row.medications.id,
                 name: row.medications.name,
                 dosage: row.medications.dosage,
-                scheduleType: row.medications.scheduleType,
+                scheduleType: row.medications.scheduleType as "recurring" | "one_off",
                 intervalDays: row.medications.intervalDays,
-                timingType: row.medications.timingType,
+                timingType: row.medications.timingType as "clock" | "slot",
                 administrationTime: row.medications.administrationTime,
-                daySlot: row.medications.daySlot,
-                startDate: row.medications.startDate,
-                endDate: row.medications.endDate,
+                daySlot: row.medications.daySlot as "morning" | "night" | null,
+                startDate: toIsoStringOrFallback(row.medications.startDate),
+                endDate: toIsoString(row.medications.endDate),
                 instructions: row.medications.instructions,
+                administeredBy: row.medications.administeredBy,
+                lastAdministeredAt: toIsoString(row.medications.lastAdministeredAt),
+                latestLogAction: latestLog
+                    ? (latestLog.actionType as "administered" | "skipped" | "missed")
+                    : null,
+                latestLogScheduledFor: toIsoString(latestLog?.scheduledFor || null),
+                latestLogCreatedAt: toIsoString(latestLog?.createdAt || null),
             });
         }
     }
-    console.log(boardersMap);
     const payload = Array.from(boardersMap.values());
-    console.log(payload);
 
     return NextResponse.json({ msg: "Success", boarders: payload });
 };

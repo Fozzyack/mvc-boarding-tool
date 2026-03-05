@@ -24,6 +24,26 @@ const LINKS = [
         ),
     },
     {
+        name: "Medications",
+        link: "/medications",
+        icon: (
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="size-6"
+            >
+                <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 6v12m6-6H6m3-9h6a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Z"
+                />
+            </svg>
+        ),
+    },
+    {
         name: "Calendar",
         link: "/calendar",
         icon: (
@@ -70,14 +90,23 @@ const ADMIN_LINKS = [
 const NavLinks = ({ isAdmin }: { isAdmin: boolean }) => {
     const pathname = usePathname();
 
+    const getDashboardHref = (link: string): string => {
+        const normalizedLink = link.replace(/^\/+/, "");
+        if (!normalizedLink) {
+            return "/dashboard";
+        }
+
+        return `/dashboard/${normalizedLink}`;
+    };
+
     return (
         <div className="flex flex-col space-y-1 w-full">
             {LINKS.map((link) => (
                 <Link
-                    href={`/dashboard/${link.link}`}
+                    href={getDashboardHref(link.link)}
                     key={link.name}
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
-                        pathname === `/dashboard${link.link}`
+                        pathname === getDashboardHref(link.link)
                             ? "bg-brand/10 text-brand"
                             : "text-text-muted hover:bg-surface-muted"
                     }`}
@@ -89,10 +118,10 @@ const NavLinks = ({ isAdmin }: { isAdmin: boolean }) => {
             {isAdmin &&
                 ADMIN_LINKS.map((link) => (
                     <Link
-                        href={`/dashboard/${link.link}`}
+                        href={getDashboardHref(link.link)}
                         key={link.name}
                         className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
-                            pathname === `/dashboard${link.link}`
+                            pathname === getDashboardHref(link.link)
                                 ? "bg-brand/10 text-brand"
                                 : "text-text-muted hover:bg-surface-muted"
                         }`}
