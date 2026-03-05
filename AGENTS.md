@@ -51,8 +51,8 @@ Use path aliases (`@/*`). Order groups with blank lines:
 import { useState } from "react";
 import Link from "next/link";
 import { eq, and } from "drizzle-orm";
-import { db } from "@/utils/db/drizzle";
-import { dogs } from "@/utils/db/schema";
+import { db } from "@/db/drizzle";
+import { dogs } from "@/db/schema";
 import type { Dog, InsertDog } from "@/types";
 ```
 
@@ -64,11 +64,21 @@ import type { Dog, InsertDog } from "@/types";
 - Extract complex logic to custom hooks
 
 ### Database (Drizzle ORM)
-- Define schemas in `utils/db/schema.ts`
+- Define schemas in `db/schema.ts`
 - Use `pgTable` with explicit constraints
 - Export tables with `Table` suffix
 - Use typed builders: `eq()`, `and()`, `or()`, `inArray()`
 - Handle transactions with `db.transaction()`
+
+#### Medication Scheduling Conventions
+- Do not use free-text `frequency` for dosing schedules
+- Use `scheduleType` with values `recurring` or `one_off`
+- For recurring schedules, store interval in days using `intervalDays` (integer, `>= 1`)
+- For one-off schedules, `intervalDays` must be `null`
+- Use `timingType` with values `clock` or `slot`
+- If `timingType = clock`, set `administrationTime` (`HH:mm`) and keep `daySlot` `null`
+- If `timingType = slot`, set `daySlot` (`morning` or `night`) and keep `administrationTime` `null`
+- Keep these rules enforced in both API validation and SQL constraints
 
 #### Schema Conventions
 | Field Type | Convention |
@@ -106,11 +116,11 @@ app/                    # Next.js App Router
 components/             # Reusable components
   ui/                   # Generic UI
   features/             # Feature-specific
+db/                     # DB schema & connection
+  schema.ts             # Table definitions
+  drizzle.ts            # DB connection
+  getDbConnString.ts    # Env-based connection
 utils/                  # Utilities
-  db/                   # DB schema & connection
-    schema.ts           # Table definitions
-    drizzle.ts          # DB connection
-    getDbConnString.ts # Env-based connection
 types/                  # TypeScript types
 constants/              # App constants
 scripts/                # One-off scripts
