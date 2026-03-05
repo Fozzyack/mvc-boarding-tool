@@ -12,6 +12,16 @@ import bcrypt from "bcrypt";
 const DEFAULT_TEST_ORGANISATION_ID = "00000000-0000-4000-8000-000000000001";
 const DEFAULT_TEST_USER_ID = "00000000-0000-4000-8000-000000000002";
 
+const formatDateForDb = (value: Date): string => {
+    return value.toISOString().slice(0, 10);
+};
+
+const addDays = (value: Date, days: number): Date => {
+    const next = new Date(value);
+    next.setDate(next.getDate() + days);
+    return next;
+};
+
 /*
  * Simple seeder
  * Inserts a sample business and sample user.
@@ -100,6 +110,24 @@ const seed = async () => {
         })
         .returning();
 
+    const boardingStartDate = new Date();
+    const boardingEndDate = addDays(boardingStartDate, 7);
+    const [boarder2] = await db
+        .insert(boardersTable)
+        .values({
+            name: "Mochi",
+            animalType: "Cat",
+            species: "Domestic Shorthair",
+            ownerName: "Mia Carter",
+            ownerPhone: "555-0199",
+            ownerEmail: "mia@example.com",
+            startDate: formatDateForDb(boardingStartDate),
+            endDate: formatDateForDb(boardingEndDate),
+            organisationId: business.id,
+            createdBy: user.id,
+        })
+        .returning();
+
     const [medication] = await db
         .insert(medicationTable)
         .values({
@@ -131,11 +159,64 @@ const seed = async () => {
         })
         .returning();
 
+    const [medication3] = await db
+        .insert(medicationTable)
+        .values({
+            name: "Gabapentin",
+            dosage: "75mg",
+            scheduleType: "recurring",
+            intervalDays: 1,
+            timingType: "slot",
+            daySlot: "night",
+            startDate: formatDateForDb(boardingStartDate),
+            endDate: formatDateForDb(boardingEndDate),
+            instructions: "Give after evening meal",
+            boarderId: boarder2.id,
+            organisationId: business.id,
+        })
+        .returning();
+
+    const [medication4] = await db
+        .insert(medicationTable)
+        .values({
+            name: "Prednisolone",
+            dosage: "5mg",
+            scheduleType: "recurring",
+            intervalDays: 2,
+            timingType: "clock",
+            administrationTime: "08:30",
+            startDate: formatDateForDb(boardingStartDate),
+            endDate: formatDateForDb(boardingEndDate),
+            instructions: "Administer with food",
+            boarderId: boarder2.id,
+            organisationId: business.id,
+        })
+        .returning();
+
+    const [medication5] = await db
+        .insert(medicationTable)
+        .values({
+            name: "Cerenia",
+            dosage: "16mg",
+            scheduleType: "one_off",
+            timingType: "clock",
+            administrationTime: "13:00",
+            startDate: formatDateForDb(addDays(boardingStartDate, 1)),
+            instructions: "Single anti-nausea dose",
+            boarderId: boarder2.id,
+            organisationId: business.id,
+        })
+        .returning();
+
     console.log(business);
     console.log(user);
     console.log(boarder);
+    console.log(boarder2);
     console.log(medication);
     console.log(medication2);
+    console.log(medication3);
+    console.log(medication4);
+    console.log(medication5);
 
     console.log("Database seeded successfully!");
 };
