@@ -71,25 +71,27 @@ export const PATCH = async (
             now,
         );
 
-        await db.insert(medicationAdministrationLogTable).values({
-            medicationId: medication.id,
-            boarderId: medication.boarderId,
-            organisationId: session.organisationId,
-            actionType,
-            scheduledFor: scheduledFor || now,
-            performedBy: session.userId,
-            notes,
-        });
+        await db.transaction(async (tx) => {
+            await tx.insert(medicationAdministrationLogTable).values({
+                medicationId: medication.id,
+                boarderId: medication.boarderId,
+                organisationId: session.organisationId,
+                actionType,
+                scheduledFor: scheduledFor || now,
+                performedBy: session.userId,
+                notes,
+            });
 
-        if (actionType === "administered") {
-            await db
-                .update(medicationTable)
-                .set({
-                    lastAdministeredAt: now,
-                    administeredBy: session.userId,
-                })
-                .where(eq(medicationTable.id, medication.id));
-        }
+            if (actionType === "administered") {
+                await tx
+                    .update(medicationTable)
+                    .set({
+                        lastAdministeredAt: now,
+                        administeredBy: session.userId,
+                    })
+                    .where(eq(medicationTable.id, medication.id));
+            }
+        });
 
         return NextResponse.json({ msg: "Success" });
     } catch (error) {
