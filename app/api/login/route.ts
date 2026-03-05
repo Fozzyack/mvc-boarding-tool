@@ -41,7 +41,7 @@ export const POST = async (req: NextRequest) => {
         console.error(error);
         return NextResponse.json(
             { err: "There was an error retrieving data" },
-            { status: 400 },
+            { status: 500 },
         );
     }
 

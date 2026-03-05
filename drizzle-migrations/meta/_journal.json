@@ -71,6 +71,13 @@
       "when": 1772694363951,
       "tag": "0009_grey_genesis",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1772695102674,
+      "tag": "0010_curly_matthew_murdock",
+      "breakpoints": true
     }
   ]
 }
