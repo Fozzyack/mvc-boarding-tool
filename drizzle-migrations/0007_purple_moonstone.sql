@@ -1,2 +1,0 @@
-ALTER TABLE "businesses" ADD COLUMN "createdAt" timestamp DEFAULT now() NOT NULL;--> statement-breakpoint
-ALTER TABLE "businesses" ADD COLUMN "updatedAt" timestamp DEFAULT (CURRENT_TIMESTAMP) NOT NULL;

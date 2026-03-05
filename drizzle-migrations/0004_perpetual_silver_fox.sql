@@ -1,2 +1,0 @@
-ALTER TABLE "boarders" ADD COLUMN "createdBy" uuid;--> statement-breakpoint
-ALTER TABLE "boarders" ADD CONSTRAINT "boarders_createdBy_users_id_fk" FOREIGN KEY ("createdBy") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;

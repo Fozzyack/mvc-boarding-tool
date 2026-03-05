@@ -1,1 +1,0 @@
-ALTER TABLE "users" ADD COLUMN "updatedAt" timestamp DEFAULT (CURRENT_TIMESTAMP) NOT NULL;
