@@ -4,6 +4,7 @@ import {
     boolean,
     date,
     decimal,
+    integer,
     pgTable,
     unique,
     uuid,
@@ -87,8 +88,11 @@ export const medicationTable = pgTable("medications", {
     id: uuid().primaryKey().unique().defaultRandom(),
     name: varchar({ length: 255 }).notNull(),
     dosage: varchar({ length: 100 }).notNull(), // e.g., "50mg", "1 tablet"
-    frequency: varchar({ length: 63 }).notNull(), // e.g., "twice daily", "every 8 hours"
-    administrationTimes: text(), // JSON array: ["08:00", "20:00"] or freeform
+    scheduleType: varchar({ length: 20 }).notNull().default("recurring"),
+    intervalDays: integer(),
+    timingType: varchar({ length: 20 }).notNull().default("slot"),
+    administrationTime: varchar({ length: 5 }),
+    daySlot: varchar({ length: 20 }),
     startDate: date().notNull(),
     endDate: date(),
     instructions: text(), // "give with food", "crush pill", etc.
