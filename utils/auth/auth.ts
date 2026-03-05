@@ -10,7 +10,7 @@ const getSecret = () => {
     return new TextEncoder().encode(secret);
 };
 
-export const createToken = async (payload: any) => {
+export const createToken = async (payload: Record<string, unknown>) => {
     return await new SignJWT(payload)
         .setProtectedHeader({ alg: "HS256" })
         .setIssuedAt()

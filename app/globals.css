@@ -3,7 +3,24 @@
 
 @theme {
     --font-montserrat: var(--font-montserrat);
+    --color-brand: oklch(62% 0.14 161);
+    --color-brand-strong: oklch(53% 0.14 161);
     --color-accent: oklch(69.6% 0.17 162.48);
+    --color-surface: oklch(99% 0.01 178);
+    --color-surface-muted: oklch(96% 0.01 230);
+    --color-border: oklch(88% 0.02 230);
+    --color-text: oklch(27% 0.02 248);
+    --color-text-muted: oklch(50% 0.02 248);
+    --color-danger: oklch(58% 0.2 25);
+
+    --radius-sm: 0.5rem;
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.25rem;
+
+    --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.08);
+    --shadow-md: 0 8px 24px -12px rgb(15 23 42 / 0.3);
+    --shadow-lg: 0 16px 40px -20px rgb(15 23 42 / 0.35);
 }
 
 
@@ -27,8 +44,85 @@
     .center-within {
         @apply flex flex-col items-center justify-center;
     }
+
+    body {
+        @apply bg-surface text-text antialiased;
+        font-family: Montserrat, Helvetica, sans-serif;
+    }
+
+    input,
+    textarea,
+    select,
+    button {
+        @apply transition-all duration-150 ease-in-out;
+    }
 }
 
-body {
-    font-family: Montserrat, Helvetica, sans-serif;
+@layer components {
+    .ui-card {
+        @apply rounded-2xl border border-border bg-white shadow-sm;
+    }
+
+    .ui-input {
+        @apply w-full rounded-lg border border-border bg-white px-3 py-2 text-sm text-text outline-none;
+        @apply placeholder:text-text-muted/80 focus:border-brand focus:ring-2 focus:ring-brand/25;
+    }
+
+    .ui-textarea {
+        @apply w-full resize-none rounded-lg border border-border bg-white px-3 py-2 text-sm text-text outline-none;
+        @apply placeholder:text-text-muted/80 focus:border-brand focus:ring-2 focus:ring-brand/25;
+    }
+
+    .ui-field-label {
+        @apply mb-1 block text-sm font-medium text-text;
+    }
+
+    .ui-field-help {
+        @apply ml-1 text-xs text-text-muted;
+    }
+
+    .ui-required {
+        @apply ml-1 text-red-500;
+    }
+
+    .ui-modal-backdrop {
+        @apply fixed inset-0 z-30 flex items-center justify-center bg-slate-900/35 p-4;
+    }
+
+    .ui-modal-panel {
+        @apply relative z-10 w-full rounded-2xl border border-border bg-white p-6 shadow-xl;
+    }
+
+    .ui-button-base {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-semibold;
+        @apply disabled:cursor-not-allowed disabled:opacity-60;
+    }
+
+    .ui-button-primary {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-2.5 font-semibold text-white;
+        @apply disabled:cursor-not-allowed disabled:opacity-60;
+        @apply shadow-lg shadow-brand/20;
+        @apply hover:-translate-y-0.5 hover:bg-brand-strong hover:shadow-xl hover:shadow-brand/30;
+    }
+
+    .ui-button-secondary {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-white px-4 py-2.5 font-semibold text-text;
+        @apply disabled:cursor-not-allowed disabled:opacity-60;
+        @apply hover:-translate-y-0.5 hover:border-brand/40 hover:bg-brand/5 hover:text-brand;
+    }
+
+    .ui-button-ghost {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl bg-transparent px-4 py-2.5 font-semibold text-text-muted;
+        @apply disabled:cursor-not-allowed disabled:opacity-60;
+        @apply hover:bg-surface-muted hover:text-text;
+    }
+
+    .ui-icon-field {
+        @apply z-10 flex items-center justify-start gap-2 rounded-xl border border-border bg-white px-2 py-2;
+        @apply focus-within:-translate-y-0.5 focus-within:scale-[1.1] focus-within:border-brand focus-within:shadow-lg;
+    }
+
+    .ui-icon-input {
+        @apply w-full bg-transparent text-sm text-text outline-none placeholder:text-text-muted/75;
+    }
 }

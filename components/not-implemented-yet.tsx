@@ -58,14 +58,14 @@ const NotImplemented = ({ featureName }: { featureName: string }) => {
                 {featureName} is coming soon!
             </h2>
             <p className="text-emerald-600/70 max-w-lg mb-10 leading-relaxed text-lg">
-                We're busy preparing the best possible experience for your
+                We&apos;re busy preparing the best possible experience for your
                 veterinary practice. Our developers (and office cats) are
                 working hard on this section.
             </p>
 
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
                 <Link href="/dashboard">
-                    <button className="bg-emerald-600 text-white px-10 py-4 rounded-2xl font-bold shadow-xl shadow-emerald-100 hover:bg-emerald-700 hover:-translate-y-1 transition-all">
+                    <button className="ui-button-primary px-10 py-4">
                         Return to Dashboard
                     </button>
                 </Link>

@@ -15,8 +15,8 @@ const DashboardPage = async () => {
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-emerald-700">Boarding Overview</h2>
-                    <p className="text-emerald-700">
+                    <h2 className="text-brand">Boarding Overview</h2>
+                    <p className="text-brand">
                         Welcome back {session.name}. Here is what is happening today.
                     </p>
                 </div>
