@@ -55,17 +55,19 @@ const CARDS = [
 
 const LandingFeatureCards = () => {
     return (
-        <div className="my-10 flex flex-col md:flex-row items-center justify-center gap-4 px-4">
+        <div className="my-10 grid w-full grid-cols-1 gap-4 md:grid-cols-3">
             {CARDS.map((card, index) => (
                 <div
                     key={index}
-                    className="px-8 py-10 rounded-xl bg-white border border-slate-200 h-[170px] w-[80%] md:w-[60%]"
+                    className="group rounded-2xl border border-slate-200/90 bg-white/90 px-6 py-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-accent/35 hover:shadow-lg"
                 >
-                    <div className="flex gap-2 items-center justify-start">
-                        {card.icon}
-                        <h4>{card.title}</h4>
+                    <div className="mb-3 flex items-center justify-start gap-2">
+                        <span className="rounded-xl bg-accent/10 p-2 text-accent transition-colors duration-200 group-hover:bg-accent/20">
+                            {card.icon}
+                        </span>
+                        <h4 className="font-semibold text-slate-800">{card.title}</h4>
                     </div>
-                    <p className="text-slate-600">{card.description}</p>
+                    <p className="text-sm leading-relaxed text-slate-600">{card.description}</p>
                 </div>
             ))}
         </div>

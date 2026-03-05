@@ -31,9 +31,9 @@ const NavLinks = () => {
 
 const LandingNav = () => {
     return (
-        <nav className="fixed w-full py-4 px-8 border-b border-slate-300 bg-white ">
-            <div className="flex w-full items-center justify-between flex-wrap">
-                <h3 className="font-semibold"> Bark & Board </h3>
+        <nav className="fixed z-50 w-full border-b border-slate-200/80 bg-white/90 px-6 py-4 backdrop-blur md:px-10">
+            <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between">
+                <h3 className="text-lg font-semibold tracking-tight text-slate-800">Bark & Board</h3>
                 <div className="hidden md:flex gap-8 items-center justify-end">
                     <NavLinks />
                 </div>
