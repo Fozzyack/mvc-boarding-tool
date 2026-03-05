@@ -17,10 +17,11 @@ import bcrypt from "bcrypt";
 const checkEnv = () => {
     if (
         !process.env.TEST_ORGANISATION_NAME ||
-        !process.env.TEST_ORGANISATION_EMAIL
+        !process.env.TEST_ORGANISATION_EMAIL ||
+        !process.env.TEST_ORGANISATION_CODE
     ) {
         throw new Error(
-            "TEST_ORGANISATION_NAME and TEST_ORGANISATION_EMAIL not set (cannot seed)",
+            "TEST_ORGANISATION_NAME, TEST_ORGANISATION_EMAIL and TEST_ORGANISATION_CODE not set (cannot seed)",
         );
     }
     if (
@@ -51,6 +52,7 @@ const seed = async () => {
         .values({
             name: process.env.TEST_ORGANISATION_NAME!,
             email: process.env.TEST_ORGANISATION_EMAIL!,
+            organisationCode: process.env.TEST_ORGANISATION_CODE!,
         })
         .returning();
 

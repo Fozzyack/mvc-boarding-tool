@@ -1,39 +1,86 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import db from "@/db/drizzle";
-import { usersTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { businessTable, usersTable } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
 import { createToken } from "@/utils/auth/auth";
 import { getNodeEnv } from "@/utils/getNodeEnv";
 import { tokenName } from "@/constants/auth";
 
 export const POST = async (req: NextRequest) => {
-    const { code, password } = await req.json();
-    let query = null;
+    const { organizationCode, code, password } = await req.json();
+    const normalizedOrganizationCode =
+        typeof organizationCode === "string"
+            ? organizationCode.trim().toUpperCase()
+            : "";
+    const normalizedCode = typeof code === "string" ? code.trim() : "";
 
-    try {
-        query = await db
-            .select()
-            .from(usersTable)
-            .where(eq(usersTable.code, code));
-    } catch (error) {
-        console.error(error);
-        return NextResponse.json(
-            { err: "There was an error retrieving data" },
-            { status: 400 },
-        );
-    }
+    const isOrganizationCodeValid = /^[A-Z0-9-]{4,63}$/.test(
+        normalizedOrganizationCode,
+    );
 
-    if (!query || query.length === 0) {
-        console.error("Could not find user");
+    if (
+        typeof password !== "string" ||
+        normalizedCode.length === 0 ||
+        !isOrganizationCodeValid
+    ) {
         return NextResponse.json(
-            { err: "Incorrect User Code or Password" },
+            { err: "Incorrect Organization Code, Client Code or Password" },
             { status: 401 },
         );
     }
 
-    const user = query[0];
-    console.log("Login detected:", code, " || Name:", user.name);
+    let organisationQuery = null;
+
+    try {
+        organisationQuery = await db
+            .select()
+            .from(businessTable)
+            .where(eq(businessTable.organisationCode, normalizedOrganizationCode));
+    } catch (error) {
+        console.error(error);
+        return NextResponse.json(
+            { err: "There was an error retrieving data" },
+            { status: 500 },
+        );
+    }
+
+    if (!organisationQuery || organisationQuery.length === 0) {
+        return NextResponse.json(
+            { err: "Incorrect Organization Code, Client Code or Password" },
+            { status: 401 },
+        );
+    }
+
+    const organisation = organisationQuery[0];
+
+    let usersQuery = null;
+    try {
+        usersQuery = await db
+            .select()
+            .from(usersTable)
+            .where(
+                and(
+                    eq(usersTable.code, normalizedCode),
+                    eq(usersTable.organisationId, organisation.id),
+                ),
+            );
+    } catch (error) {
+        console.error(error);
+        return NextResponse.json(
+            { err: "There was an error retrieving data" },
+            { status: 500 },
+        );
+    }
+
+    if (!usersQuery || usersQuery.length === 0) {
+        return NextResponse.json(
+            { err: "Incorrect Organization Code, Client Code or Password" },
+            { status: 401 },
+        );
+    }
+
+    const user = usersQuery[0];
 
     let comparison = false;
     try {
@@ -41,14 +88,14 @@ export const POST = async (req: NextRequest) => {
     } catch (error) {
         console.error(error);
         return NextResponse.json(
-            { err: "Incorrect User Code or Password" },
+            { err: "Incorrect Organization Code, Client Code or Password" },
             { status: 401 },
         );
     }
 
     if (!comparison) {
         return NextResponse.json(
-            { err: "Incorrect User Code or Password" },
+            { err: "Incorrect Organization Code, Client Code or Password" },
             { status: 401 },
         );
     }
