@@ -1,9 +1,13 @@
 "use client";
 
+import Button from "@/components/ui/Button";
+import FormField from "@/components/ui/FormField";
+import Input from "@/components/ui/Input";
+import Modal from "@/components/ui/Modal";
+import Textarea from "@/components/ui/Textarea";
 import { useBoardersContext } from "@/contexts/BoardersContext";
 import getBackendUrl from "@/utils/getBackendUrl";
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import { useState } from "react";
 
 const InputField = ({
     label,
@@ -25,21 +29,8 @@ const InputField = ({
     value: string;
 }) => {
     return (
-        <div className="mb-3">
-            <label
-                htmlFor={name}
-                className="block text-sm font-medium text-slate-700 mb-1"
-            >
-                {label}
-                {required ? (
-                    <span className="text-red-500 ml-1">*</span>
-                ) : (
-                    <span className="text-slate-400 ml-1 text-xs">
-                        (optional)
-                    </span>
-                )}
-            </label>
-            <input
+        <FormField label={label} htmlFor={name} required={required}>
+            <Input
                 type={type || "text"}
                 id={name}
                 name={name}
@@ -48,9 +39,8 @@ const InputField = ({
                 placeholder={placeholder}
                 step={step}
                 required={required}
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
-        </div>
+        </FormField>
     );
 };
 
@@ -70,21 +60,8 @@ const TextareaField = ({
     value: string;
 }) => {
     return (
-        <div className="mb-3">
-            <label
-                htmlFor={name}
-                className="block text-sm font-medium text-slate-700 mb-1"
-            >
-                {label}
-                {required ? (
-                    <span className="text-red-500 ml-1">*</span>
-                ) : (
-                    <span className="text-slate-400 ml-1 text-xs">
-                        (optional)
-                    </span>
-                )}
-            </label>
-            <textarea
+        <FormField label={label} htmlFor={name} required={required}>
+            <Textarea
                 id={name}
                 name={name}
                 value={value}
@@ -92,9 +69,8 @@ const TextareaField = ({
                 placeholder={placeholder}
                 rows={3}
                 required={required}
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
             />
-        </div>
+        </FormField>
     );
 };
 
@@ -122,11 +98,6 @@ const BoarderModal = ({
     });
 
     const { refreshBoarders } = useBoardersContext();
-
-    useEffect(() => {
-        // Just here as the next buttons are a bit buggy.
-        // May have to return to this at a later date
-    }, [currentStep]);
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -224,69 +195,39 @@ const BoarderModal = ({
         },
     ];
 
-    return createPortal(
-        <div className="z-20 w-full h-screen fixed inset-0 flex flex-col items-center justify-center">
-            <div
-                onClick={() => setIsOpen(false)}
-                className="absolute z-0 h-full w-full bg-gray-800/30"
-            />
-            <div className="p-6 bg-white rounded-xl border border-slate-200 z-10 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                <div className="flex items-start justify-between mb-4">
-                    <div>
-                        <h4 className="text-lg font-semibold text-slate-900">
-                            Add New Boarder
-                        </h4>
-                        <p className="text-sm text-slate-600">
-                            {steps[currentStep - 1].description}
-                        </p>
-                    </div>
-                    <button
-                        onClick={() => setIsOpen(false)}
-                        className="hover:cursor-pointer text-slate-400 hover:text-slate-600"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={1.5}
-                            stroke="currentColor"
-                            className="size-6"
+    return (
+        <Modal
+            title="Add New Boarder"
+            description={steps[currentStep - 1].description}
+            onClose={() => setIsOpen(false)}
+            contentClassName="max-w-2xl max-h-[90vh] overflow-y-auto"
+        >
+            <div className="mb-6 flex items-center gap-2">
+                {steps.map((_, index) => (
+                    <div key={index} className="flex items-center">
+                        <div
+                            className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium ${
+                                index + 1 <= currentStep
+                                    ? "bg-brand text-white"
+                                    : "bg-slate-200 text-slate-500"
+                            }`}
                         >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M6 18 18 6M6 6l12 12"
-                            />
-                        </svg>
-                    </button>
-                </div>
-
-                <div className="flex items-center gap-2 mb-6">
-                    {steps.map((_, index) => (
-                        <div key={index} className="flex items-center">
-                            <div
-                                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                                    index + 1 <= currentStep
-                                        ? "bg-emerald-600 text-white"
-                                        : "bg-slate-200 text-slate-500"
-                                }`}
-                            >
-                                {index + 1}
-                            </div>
-                            {index < steps.length - 1 && (
-                                <div
-                                    className={`w-12 h-1 mx-1 ${
-                                        index + 1 < currentStep
-                                            ? "bg-emerald-600"
-                                            : "bg-slate-200"
-                                    }`}
-                                />
-                            )}
+                            {index + 1}
                         </div>
-                    ))}
-                </div>
+                        {index < steps.length - 1 && (
+                            <div
+                                className={`mx-1 h-1 w-12 ${
+                                    index + 1 < currentStep
+                                        ? "bg-brand"
+                                        : "bg-slate-200"
+                                }`}
+                            />
+                        )}
+                    </div>
+                ))}
+            </div>
 
-                <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit}>
                     {currentStep === 1 && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <InputField
@@ -415,45 +356,31 @@ const BoarderModal = ({
                         </div>
                     )}
 
-                    <div className="flex justify-between mt-6">
+                    <div className="mt-6 flex justify-between">
                         {currentStep > 1 ? (
-                            <button
-                                type="button"
-                                onClick={prevStep}
-                                className="px-4 py-2 text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
-                            >
+                            <Button type="button" variant="secondary" onClick={prevStep}>
                                 Previous
-                            </button>
+                            </Button>
                         ) : (
                             <div />
                         )}
 
                         {currentStep < 3 ? (
-                            <button
+                            <Button
                                 type="button"
                                 onClick={nextStep}
                                 disabled={!isStepValid()}
-                                className={`px-4 py-2 rounded-lg transition-colors ${
-                                    isStepValid()
-                                        ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                                        : "bg-slate-300 text-slate-500 cursor-not-allowed"
-                                }`}
                             >
                                 Next
-                            </button>
+                            </Button>
                         ) : (
-                            <button
-                                type="submit"
-                                className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
-                            >
+                            <Button type="submit">
                                 Add Boarder
-                            </button>
+                            </Button>
                         )}
                     </div>
                 </form>
-            </div>
-        </div>,
-        document.body,
+        </Modal>
     );
 };
 
@@ -462,10 +389,7 @@ const AddBoarder = () => {
 
     return (
         <>
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 font-semibold text-white shadow-lg shadow-emerald-600/20 transition-all duration-150 ease-in-out hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-xl hover:shadow-emerald-600/30"
-            >
+            <Button onClick={() => setIsOpen(!isOpen)}>
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -481,7 +405,7 @@ const AddBoarder = () => {
                     />
                 </svg>
                 Add New Boarder
-            </button>
+            </Button>
             {isOpen && <BoarderModal setIsOpen={setIsOpen} />}
         </>
     );

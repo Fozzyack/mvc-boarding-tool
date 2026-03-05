@@ -78,8 +78,8 @@ const NavLinks = ({ isAdmin }: { isAdmin: boolean }) => {
                     key={link.name}
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
                         pathname === `/dashboard${link.link}`
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "text-slate-600 hover:bg-slate-100"
+                            ? "bg-brand/10 text-brand"
+                            : "text-text-muted hover:bg-surface-muted"
                     }`}
                 >
                     {link.icon}
@@ -93,8 +93,8 @@ const NavLinks = ({ isAdmin }: { isAdmin: boolean }) => {
                         key={link.name}
                         className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
                             pathname === `/dashboard${link.link}`
-                                ? "bg-emerald-100 text-emerald-700"
-                                : "text-slate-600 hover:bg-slate-100"
+                                ? "bg-brand/10 text-brand"
+                                : "text-text-muted hover:bg-surface-muted"
                         }`}
                     >
                         {link.icon}
@@ -114,23 +114,23 @@ const Navbar = ({ isAdmin }: { isAdmin: boolean }) => {
     };
 
     return (
-        <nav className="py-6 bg-white h-screen w-64 flex flex-col border-r border-slate-200">
-            <div className="px-6 pb-6 border-b border-slate-200">
-                <h3 className="text-xl font-bold text-emerald-700">
+        <nav className="flex h-screen w-64 flex-col border-r border-border bg-white py-6">
+            <div className="border-b border-border px-6 pb-6">
+                <h3 className="text-xl font-bold text-brand">
                     Bark & Board
                 </h3>
-                <p className="text-sm text-slate-500 mt-1">Clinic Dashboard</p>
+                <p className="mt-1 text-sm text-text-muted">Clinic Dashboard</p>
             </div>
 
             <div className="flex-1 py-6 px-3">
                 <NavLinks isAdmin={isAdmin} />
             </div>
 
-            <div className="px-3 pb-6 border-t border-slate-200">
-                <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-slate-50"></div>
+            <div className="border-t border-border px-3 pb-6">
+                <div className="flex items-center gap-3 rounded-xl bg-surface-muted px-3 py-3"></div>
                 <button
                     onClick={handleLogout}
-                    className="mt-3 w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+                    className="mt-3 flex w-full items-center gap-3 rounded-xl px-3 py-3 text-text-muted transition-colors hover:bg-red-50 hover:text-red-600"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"

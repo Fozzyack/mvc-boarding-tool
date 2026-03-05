@@ -18,13 +18,13 @@ const HeaderCard = ({
     icon: ReactElement;
     iconBg: string;
 }) => {
-    const cardClass = `p-8 bg-white rounded-2xl border-slate-300 ${className} shadow-lg`;
+    const cardClass = `ui-card p-8 ${className}`;
     return (
         <div className={cardClass}>
             <div className="flex gap-2 items-center">
                 <div className={`p-3 rounded-full ${iconBg}`}>{icon}</div>
                 <div>
-                    <h4 className="text-slate-400 font-normal">{title}</h4>
+                    <h4 className="font-normal text-text-muted">{title}</h4>
                     <span className="text-2xl">{content} </span>
                     <span className="text-sm">{postText}</span>
                 </div>

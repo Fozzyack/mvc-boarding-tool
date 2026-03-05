@@ -6,9 +6,9 @@ import AddMedicationModal from "./AddMedicationModal";
 const BoardersTable = () => {
     const { boarders } = useBoardersContext();
     return (
-        <div className="relative bg-white overflow-x-auto shadow-sm rounded-2xl border border-slate-300 w-full">
+        <div className="ui-card relative w-full overflow-x-auto">
             <table className="text-sm w-full table-auto">
-                <thead className="text-sm text-body bg-slate-200 border-b border-slate-200 rounded-2xl rounded-base">
+                <thead className="rounded-base border-b border-border bg-surface-muted text-sm text-text">
                     <tr>
                         <th scope="col" className="px-6 py-3 font-medium">
                             Name
@@ -40,11 +40,11 @@ const BoardersTable = () => {
                     {boarders.map((boarder) => (
                         <tr
                             key={boarder.id}
-                            className="text-center border-b border-slate-200"
+                            className="border-b border-border text-center"
                         >
                             <th
                                 scope="row"
-                                className="px-6 py-4 whitespace-nowrap font-semibold border-r border-slate-200"
+                                className="whitespace-nowrap border-r border-border px-6 py-4 font-semibold"
                             >
                                 {boarder.name}
                             </th>

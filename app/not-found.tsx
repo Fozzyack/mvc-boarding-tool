@@ -35,13 +35,13 @@ export default function NotFound() {
                 Whoops! This page took a walk.
             </h2>
             <p className="text-emerald-600/70 max-w-md mb-8 leading-relaxed">
-                The page you're looking for seems to have wandered off the
-                leash. Let's get you back to the main lobby where the treats
+                The page you&apos;re looking for seems to have wandered off the
+                leash. Let&apos;s get you back to the main lobby where the treats
                 are!
             </p>
 
             <Link href="/">
-                <button className="bg-emerald-600 text-white px-8 py-4 rounded-2xl font-bold shadow-lg shadow-emerald-200 hover:bg-emerald-700 hover:scale-105 transition-all flex items-center space-x-3">
+                <button className="ui-button-primary px-8 py-4 flex items-center space-x-3">
                     <svg
                         className="w-5 h-5"
                         fill="none"

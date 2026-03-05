@@ -1,5 +1,7 @@
 "use client";
 
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
 import getBackendUrl from "@/utils/getBackendUrl";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
@@ -139,8 +141,10 @@ const LoginPage = () => {
                             User Code:
                         </label>
                         <div
-                            onClick={() => codeInput.current?.focus()!}
-                            className="z-10 rounded-xl border border-slate-400 py-2 bg-white flex items-center justify-start px-2 gap-2 focus-within:-translate-y-1 focus-within:scale-105 focus-within:shadow-lg focus-within:border-accent transition ease-in-out"
+                            onClick={() => {
+                                codeInput.current?.focus();
+                            }}
+                            className="ui-icon-field"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -157,13 +161,13 @@ const LoginPage = () => {
                                 />
                             </svg>
 
-                            <input
+                            <Input
                                 ref={codeInput}
                                 id="code-input"
                                 name="code"
                                 value={formInfo.code}
                                 onChange={handleInputChange}
-                                className="outline-none w-full"
+                                className="ui-icon-input border-none px-0 py-0 focus:ring-0"
                                 placeholder="XXXXXXXX"
                             />
                         </div>
@@ -173,8 +177,10 @@ const LoginPage = () => {
                             Password:
                         </label>
                         <div
-                            onClick={() => passwordInput.current?.focus()!}
-                            className="relative z-10 rounded-xl border border-slate-400 py-2 bg-white flex items-center justify-start px-2 gap-2 focus-within:-translate-y-1 focus-within:scale-105 focus-within:shadow-lg focus-within:border-accent transition ease-in-out"
+                            onClick={() => {
+                                passwordInput.current?.focus();
+                            }}
+                            className="ui-icon-field"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -191,14 +197,14 @@ const LoginPage = () => {
                                 />
                             </svg>
 
-                            <input
+                            <Input
                                 id="password-input"
                                 ref={passwordInput}
                                 name="password"
                                 value={formInfo.password}
                                 onChange={handleInputChange}
                                 type={showPassword ? "text" : "password"}
-                                className="outline-none w-full"
+                                className="ui-icon-input border-none px-0 py-0 focus:ring-0"
                                 placeholder="Password123!"
                             />
                             <button type="button" onClick={toggleShowPassword}>
@@ -241,15 +247,7 @@ const LoginPage = () => {
                             </button>
                         </div>
                     </div>
-                    <button
-                        type="submit"
-                        className="text-white rounded-xl relative group hover:-translate-y-0.5 transition-all ease-in-out hover:cursor-pointer"
-                    >
-                        <div className="absolute bg-accent/60 blur-xl w-full h-full group-hover:blur-lg transition-all ease-in-out" />
-                        <div className="relative z-20 font-bold bg-accent rounded-xl py-2">
-                            Login
-                        </div>
-                    </button>
+                    <Button type="submit">Login</Button>
                     <p
                         className={`${errorMessage === "" ? "h-0" : "h-10"} text-center text-red-500 transition-all ease-in-out duration-500`}
                     >
