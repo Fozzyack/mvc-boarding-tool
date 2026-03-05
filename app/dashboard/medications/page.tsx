@@ -22,6 +22,7 @@ const FILTER_OPTIONS: Array<{ label: string; value: MedicationStatus | "all" }> 
     { label: "Due now", value: "due_now" },
     { label: "Due soon", value: "due_soon" },
     { label: "Overdue", value: "overdue" },
+    { label: "Scheduled", value: "scheduled" },
     { label: "Completed", value: "completed" },
     { label: "Skipped", value: "skipped" },
     { label: "Missed", value: "missed" },
