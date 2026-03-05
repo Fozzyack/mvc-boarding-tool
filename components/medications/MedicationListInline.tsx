@@ -1,10 +1,11 @@
 "use client";
 
 import AddMedicationModal from "@/components/AddMedicationModal";
+import MedicationActionConfirmModal from "@/components/medications/MedicationActionConfirmModal";
 import MedicationStatusBadge from "@/components/medications/MedicationStatusBadge";
 import Button from "@/components/ui/Button";
 import { useBoardersContext } from "@/contexts/BoardersContext";
-import { BoarderMedicationSummary } from "@/types";
+import { BoarderMedicationSummary, MedicationLogAction } from "@/types";
 import getBackendUrl from "@/utils/getBackendUrl";
 import getMedicationScheduleLabel from "@/utils/medications/getMedicationScheduleLabel";
 import getMedicationStatus, {
@@ -41,12 +42,19 @@ interface MedicationListInlineProps {
     medications: BoarderMedicationSummary[];
 }
 
+interface PendingMedicationAction {
+    medicationId: string;
+    medicationName: string;
+    actionType: MedicationLogAction;
+}
+
 const MedicationListInline = ({
     boarderId,
     medications,
 }: MedicationListInlineProps) => {
     const { refreshBoarders } = useBoardersContext();
     const [updatingMedicationId, setUpdatingMedicationId] = useState<string | null>(null);
+    const [pendingAction, setPendingAction] = useState<PendingMedicationAction | null>(null);
 
     const handleMedicationAction = async (
         medicationId: string,
@@ -132,7 +140,13 @@ const MedicationListInline = ({
                                 <div className="flex items-center gap-2">
                                     <Button
                                         size="sm"
-                                        onClick={() => handleMedicationAction(medication.id, "administered")}
+                                        onClick={() =>
+                                            setPendingAction({
+                                                medicationId: medication.id,
+                                                medicationName: medication.name,
+                                                actionType: "administered",
+                                            })
+                                        }
                                         disabled={updatingMedicationId === medication.id}
                                     >
                                         {updatingMedicationId === medication.id ? "Saving..." : "Mark given"}
@@ -140,7 +154,13 @@ const MedicationListInline = ({
                                     <Button
                                         size="sm"
                                         variant="secondary"
-                                        onClick={() => handleMedicationAction(medication.id, "skipped")}
+                                        onClick={() =>
+                                            setPendingAction({
+                                                medicationId: medication.id,
+                                                medicationName: medication.name,
+                                                actionType: "skipped",
+                                            })
+                                        }
                                         disabled={updatingMedicationId === medication.id}
                                     >
                                         Skip
@@ -152,6 +172,21 @@ const MedicationListInline = ({
                 })}
             </div>
             <AddMedicationModal boarderId={boarderId} />
+            {pendingAction ? (
+                <MedicationActionConfirmModal
+                    actionType={pendingAction.actionType}
+                    medicationName={pendingAction.medicationName}
+                    isLoading={updatingMedicationId === pendingAction.medicationId}
+                    onCancel={() => setPendingAction(null)}
+                    onConfirm={async () => {
+                        await handleMedicationAction(
+                            pendingAction.medicationId,
+                            pendingAction.actionType,
+                        );
+                        setPendingAction(null);
+                    }}
+                />
+            ) : null}
         </div>
     );
 };

@@ -1,13 +1,21 @@
 "use client";
 
 import MedicationStatusBadge from "@/components/medications/MedicationStatusBadge";
+import MedicationActionConfirmModal from "@/components/medications/MedicationActionConfirmModal";
 import Button from "@/components/ui/Button";
 import { useBoardersContext } from "@/contexts/BoardersContext";
+import type { MedicationLogAction } from "@/types";
 import getBackendUrl from "@/utils/getBackendUrl";
 import type { MedicationStatus } from "@/utils/medications/getMedicationStatus";
 import getMedicationStatus from "@/utils/medications/getMedicationStatus";
 import getMedicationTimingLabel from "@/utils/medications/getMedicationTimingLabel";
 import { useMemo, useState } from "react";
+
+interface PendingMedicationAction {
+    medicationId: string;
+    medicationName: string;
+    actionType: MedicationLogAction;
+}
 
 const FILTER_OPTIONS: Array<{ label: string; value: MedicationStatus | "all" }> = [
     { label: "All", value: "all" },
@@ -23,10 +31,11 @@ const MedicationsPage = () => {
     const { boarders, refreshBoarders } = useBoardersContext();
     const [activeFilter, setActiveFilter] = useState<MedicationStatus | "all">("due_now");
     const [updatingMedicationId, setUpdatingMedicationId] = useState<string | null>(null);
+    const [pendingAction, setPendingAction] = useState<PendingMedicationAction | null>(null);
 
     const handleMedicationAction = async (
         medicationId: string,
-        actionType: "administered" | "skipped" | "missed",
+        actionType: MedicationLogAction,
     ) => {
         setUpdatingMedicationId(medicationId);
         try {
@@ -160,10 +169,11 @@ const MedicationsPage = () => {
                                                 <Button
                                                     size="sm"
                                                     onClick={() =>
-                                                        handleMedicationAction(
-                                                            item.medication.id,
-                                                            "administered",
-                                                        )
+                                                        setPendingAction({
+                                                            medicationId: item.medication.id,
+                                                            medicationName: item.medication.name,
+                                                            actionType: "administered",
+                                                        })
                                                     }
                                                     disabled={
                                                         !canMarkGiven || updatingMedicationId === item.medication.id
@@ -177,7 +187,11 @@ const MedicationsPage = () => {
                                                     size="sm"
                                                     variant="secondary"
                                                     onClick={() =>
-                                                        handleMedicationAction(item.medication.id, "skipped")
+                                                        setPendingAction({
+                                                            medicationId: item.medication.id,
+                                                            medicationName: item.medication.name,
+                                                            actionType: "skipped",
+                                                        })
                                                     }
                                                     disabled={
                                                         !canMarkGiven || updatingMedicationId === item.medication.id
@@ -189,7 +203,11 @@ const MedicationsPage = () => {
                                                     size="sm"
                                                     variant="ghost"
                                                     onClick={() =>
-                                                        handleMedicationAction(item.medication.id, "missed")
+                                                        setPendingAction({
+                                                            medicationId: item.medication.id,
+                                                            medicationName: item.medication.name,
+                                                            actionType: "missed",
+                                                        })
                                                     }
                                                     disabled={
                                                         !canMarkGiven || updatingMedicationId === item.medication.id
@@ -206,6 +224,21 @@ const MedicationsPage = () => {
                     </tbody>
                 </table>
             </div>
+            {pendingAction ? (
+                <MedicationActionConfirmModal
+                    actionType={pendingAction.actionType}
+                    medicationName={pendingAction.medicationName}
+                    isLoading={updatingMedicationId === pendingAction.medicationId}
+                    onCancel={() => setPendingAction(null)}
+                    onConfirm={async () => {
+                        await handleMedicationAction(
+                            pendingAction.medicationId,
+                            pendingAction.actionType,
+                        );
+                        setPendingAction(null);
+                    }}
+                />
+            ) : null}
         </div>
     );
 };
