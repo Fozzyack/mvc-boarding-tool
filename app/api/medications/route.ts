@@ -1,14 +1,35 @@
 import { sessionPayload } from "@/types";
 import { getSession } from "@/utils/auth/auth";
 import db from "@/db/drizzle";
-import { medicationTable } from "@/db/schema";
+import { boardersTable, medicationTable } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
     try {
         const body = await req.json();
         const session = (await getSession()) as sessionPayload;
-        const isOneOff = Boolean(body.isOneOff);
+        const rawIsOneOff = body.isOneOff;
+        let isOneOff: boolean;
+
+        if (rawIsOneOff === true || rawIsOneOff === "true" || rawIsOneOff === 1 || rawIsOneOff === "1") {
+            isOneOff = true;
+        } else if (
+            rawIsOneOff === false ||
+            rawIsOneOff === "false" ||
+            rawIsOneOff === 0 ||
+            rawIsOneOff === "0" ||
+            rawIsOneOff === null ||
+            rawIsOneOff === undefined
+        ) {
+            isOneOff = false;
+        } else {
+            return NextResponse.json(
+                { msg: "Invalid isOneOff value" },
+                { status: 400 },
+            );
+        }
+
         const scheduleType = isOneOff ? "one_off" : "recurring";
         const timingType = body.timingType;
         const intervalDays =
@@ -78,6 +99,24 @@ export const POST = async (req: NextRequest) => {
             return NextResponse.json(
                 { msg: "Day slot must be morning or night" },
                 { status: 400 },
+            );
+        }
+
+        const boarder = await db
+            .select({ id: boardersTable.id })
+            .from(boardersTable)
+            .where(
+                and(
+                    eq(boardersTable.id, body.boarderId),
+                    eq(boardersTable.organisationId, session.organisationId),
+                ),
+            )
+            .limit(1);
+
+        if (boarder.length === 0) {
+            return NextResponse.json(
+                { msg: "Cannot complete this action: forbidden" },
+                { status: 403 },
             );
         }
 

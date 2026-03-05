@@ -7,8 +7,9 @@ UPDATE "medications"
 SET
     "scheduleType" = 'recurring',
     "intervalDays" = CASE
-        WHEN "frequency" ~ '[0-9]+' THEN CAST(substring("frequency" from '([0-9]+)') AS integer)
+        WHEN lower("frequency") LIKE '%week%' AND "frequency" ~ '[0-9]+' THEN CAST(substring("frequency" from '([0-9]+)') AS integer) * 7
         WHEN lower("frequency") LIKE '%week%' THEN 7
+        WHEN "frequency" ~ '[0-9]+' THEN CAST(substring("frequency" from '([0-9]+)') AS integer)
         ELSE 1
     END,
     "timingType" = 'slot',
