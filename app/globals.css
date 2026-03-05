@@ -119,7 +119,7 @@
 
     .ui-icon-field {
         @apply z-10 flex items-center justify-start gap-2 rounded-xl border border-border bg-white px-2 py-2;
-        @apply focus-within:-translate-y-0.5 focus-within:scale-[1.01] focus-within:border-brand focus-within:shadow-lg;
+        @apply focus-within:-translate-y-0.5 focus-within:scale-[1.1] focus-within:border-brand focus-within:shadow-lg;
     }
 
     .ui-icon-input {

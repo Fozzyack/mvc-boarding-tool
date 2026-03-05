@@ -144,7 +144,7 @@ const LoginPage = () => {
                             onClick={() => {
                                 codeInput.current?.focus();
                             }}
-                            className="ui-icon-field"
+                            className="ui-icon-field transition ease-in-out duration-150"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -180,7 +180,7 @@ const LoginPage = () => {
                             onClick={() => {
                                 passwordInput.current?.focus();
                             }}
-                            className="ui-icon-field"
+                            className="ui-icon-field transition ease-in-out duration-150"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
