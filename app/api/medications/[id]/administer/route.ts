@@ -25,7 +25,14 @@ export const PATCH = async (
         }
 
         const body = await req.json().catch(() => ({}));
-        const actionType = isValidAction(body.actionType) ? body.actionType : "administered";
+        if (!isValidAction(body.actionType)) {
+            return NextResponse.json(
+                { msg: "Invalid action type" },
+                { status: 400 },
+            );
+        }
+
+        const actionType = body.actionType;
         const notes = typeof body.notes === "string" && body.notes.trim().length > 0
             ? body.notes.trim()
             : null;
