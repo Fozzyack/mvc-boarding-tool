@@ -252,6 +252,7 @@ export const GET = async (req: NextRequest) => {
             id: medicationTable.id,
             boarderId: medicationTable.boarderId,
             boarderName: boardersTable.name,
+            boarderEndDate: boardersTable.endDate,
             ownerName: boardersTable.ownerName,
             medicationName: medicationTable.name,
             dosage: medicationTable.dosage,
@@ -337,12 +338,20 @@ export const GET = async (req: NextRequest) => {
         const medicationEndDate = medication.endDate
             ? parseDateOnly(medication.endDate)
             : null;
+        const boarderEndDate = parseDateOnly(medication.boarderEndDate);
 
-        if (!timing || !timingLabel || !startDay) {
+        if (!timing || !timingLabel || !startDay || !boarderEndDate) {
             continue;
         }
 
-        const untilDay = medicationEndDate && medicationEndDate < toDay ? medicationEndDate : toDay;
+        let untilDay = toDay;
+        if (medicationEndDate && medicationEndDate < untilDay) {
+            untilDay = medicationEndDate;
+        }
+        if (boarderEndDate < untilDay) {
+            untilDay = boarderEndDate;
+        }
+
         if (startDay > untilDay) {
             continue;
         }
