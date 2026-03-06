@@ -20,7 +20,7 @@ const DashboardPage = async () => {
                         Welcome back {session.name}. Here is what is happening today.
                     </p>
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2 md:ml-auto md:justify-end">
                     <AddMedicationModal />
                     <AddBoarder />
                 </div>
