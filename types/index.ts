@@ -55,3 +55,41 @@ export interface BoarderMedicationSummary {
 export interface BoarderWithMedications extends Boarder {
     medications: BoarderMedicationSummary[];
 }
+
+export type CalendarMedicationStatus =
+    | "due_now"
+    | "due_soon"
+    | "scheduled"
+    | "overdue"
+    | "completed"
+    | "skipped"
+    | "missed";
+
+export interface CalendarStay {
+    boarderId: string;
+    boarderName: string;
+    ownerName: string | null;
+    startDate: string;
+    endDate: string;
+}
+
+export interface CalendarMedicationEvent {
+    id: string;
+    medicationId: string;
+    boarderId: string;
+    boarderName: string;
+    ownerName: string | null;
+    medicationName: string;
+    dosage: string;
+    scheduledFor: string;
+    status: CalendarMedicationStatus;
+    timingLabel: string;
+    scheduleLabel: string;
+}
+
+export interface CalendarResponsePayload {
+    from: string;
+    to: string;
+    stays: CalendarStay[];
+    medicationEvents: CalendarMedicationEvent[];
+}
