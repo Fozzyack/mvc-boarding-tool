@@ -18,6 +18,10 @@ type StaffFormState = {
     isActive: "true" | "false";
 };
 
+interface StaffManagementProps {
+    currentUserId: string;
+}
+
 const EMPTY_FORM: StaffFormState = {
     name: "",
     code: "",
@@ -34,7 +38,7 @@ const formatDate = (value: string): string => {
     return date.toLocaleDateString();
 };
 
-const StaffManagement = () => {
+const StaffManagement = ({ currentUserId }: StaffManagementProps) => {
     const [staff, setStaff] = useState<StaffMember[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -44,7 +48,9 @@ const StaffManagement = () => {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [editingStaff, setEditingStaff] = useState<StaffMember | null>(null);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [isStatusSubmitting, setIsStatusSubmitting] = useState<boolean>(false);
     const [formState, setFormState] = useState<StaffFormState>(EMPTY_FORM);
+    const [pendingStatusChange, setPendingStatusChange] = useState<StaffMember | null>(null);
 
     const loadStaff = async () => {
         setIsLoading(true);
@@ -180,20 +186,28 @@ const StaffManagement = () => {
 
     const handleToggleActive = async (member: StaffMember) => {
         const nextIsActive = !member.isActive;
-        const actionLabel = nextIsActive ? "reactivate" : "deactivate";
-
-        const confirmed = window.confirm(
-            `Are you sure you want to ${actionLabel} ${member.name}?`,
-        );
-        if (!confirmed) {
+        if (!nextIsActive && member.id === currentUserId) {
+            setErrorMessage("You cannot deactivate your own account");
             return;
         }
 
+        setPendingStatusChange(member);
+    };
+
+    const confirmStatusChange = async () => {
+        if (!pendingStatusChange) {
+            return;
+        }
+
+        const nextIsActive = !pendingStatusChange.isActive;
+        const actionLabel = nextIsActive ? "reactivate" : "deactivate";
+
         setErrorMessage(null);
         setSuccessMessage(null);
+        setIsStatusSubmitting(true);
 
         try {
-            const response = await fetch(`${getBackendUrl()}/api/staff/${member.id}`, {
+            const response = await fetch(`${getBackendUrl()}/api/staff/${pendingStatusChange.id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ isActive: nextIsActive }),
@@ -214,6 +228,9 @@ const StaffManagement = () => {
         } catch (error) {
             console.error(`Error trying to ${actionLabel} staff member:`, error);
             setErrorMessage(`Failed to ${actionLabel} staff member`);
+        } finally {
+            setIsStatusSubmitting(false);
+            setPendingStatusChange(null);
         }
     };
 
@@ -346,6 +363,10 @@ const StaffManagement = () => {
                                                   variant={member.isActive ? "ghost" : "secondary"}
                                                   size="sm"
                                                   onClick={() => handleToggleActive(member)}
+                                                  disabled={
+                                                      isStatusSubmitting ||
+                                                      (member.id === currentUserId && member.isActive)
+                                                  }
                                               >
                                                   {member.isActive ? "Deactivate" : "Reactivate"}
                                               </Button>
@@ -432,6 +453,7 @@ const StaffManagement = () => {
                                 <Select
                                     id="staff-status"
                                     value={formState.isActive}
+                                    disabled={editingStaff.id === currentUserId}
                                     onChange={(event) =>
                                         setFormState((prev) => ({
                                             ...prev,
@@ -443,6 +465,12 @@ const StaffManagement = () => {
                                     <option value="false">Inactive</option>
                                 </Select>
                             </FormField>
+                        ) : null}
+
+                        {editingStaff?.id === currentUserId ? (
+                            <p className="mb-3 text-xs text-text-muted">
+                                You cannot deactivate your own account.
+                            </p>
                         ) : null}
 
                         <div className="mt-6 flex items-center justify-end gap-2">
@@ -458,6 +486,41 @@ const StaffManagement = () => {
                             </Button>
                         </div>
                     </form>
+                </Modal>
+            ) : null}
+
+            {pendingStatusChange ? (
+                <Modal
+                    title={`${pendingStatusChange.isActive ? "Deactivate" : "Reactivate"} Staff Member`}
+                    description={`This will ${
+                        pendingStatusChange.isActive ? "remove" : "restore"
+                    } ${pendingStatusChange.name}'s access.`}
+                    onClose={() => {
+                        if (!isStatusSubmitting) {
+                            setPendingStatusChange(null);
+                        }
+                    }}
+                    contentClassName="max-w-md"
+                >
+                    <div className="space-y-4">
+                        <p className="text-sm text-text-muted">
+                            Are you sure you want to {pendingStatusChange.isActive ? "deactivate" : "reactivate"}{" "}
+                            <span className="font-medium text-text">{pendingStatusChange.name}</span>?
+                        </p>
+                        <div className="flex items-center justify-end gap-2">
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                onClick={() => setPendingStatusChange(null)}
+                                disabled={isStatusSubmitting}
+                            >
+                                Cancel
+                            </Button>
+                            <Button type="button" onClick={confirmStatusChange} disabled={isStatusSubmitting}>
+                                {isStatusSubmitting ? "Saving..." : "Confirm"}
+                            </Button>
+                        </div>
+                    </div>
                 </Modal>
             ) : null}
         </div>

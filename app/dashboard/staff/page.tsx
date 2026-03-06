@@ -13,7 +13,7 @@ const StaffPage = async () => {
         redirect("/dashboard");
     }
 
-    return <StaffManagement />;
+    return <StaffManagement currentUserId={session.userId} />;
 };
 
 export default StaffPage;
