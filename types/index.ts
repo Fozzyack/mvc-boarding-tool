@@ -93,3 +93,13 @@ export interface CalendarResponsePayload {
     stays: CalendarStay[];
     medicationEvents: CalendarMedicationEvent[];
 }
+
+export interface StaffMember {
+    id: string;
+    name: string;
+    code: string;
+    isAdmin: boolean;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
