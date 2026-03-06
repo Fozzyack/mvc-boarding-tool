@@ -241,16 +241,18 @@ const StaffManagement = ({ currentUserId }: StaffManagementProps) => {
                     <h2 className="text-brand">Staff Management</h2>
                     <p className="text-brand">Create, edit, and manage staff access for your clinic.</p>
                 </div>
-                <Button onClick={openCreateModal}>Add Staff Member</Button>
+                <Button className="w-full sm:w-auto" onClick={openCreateModal}>
+                    Add Staff Member
+                </Button>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-col items-stretch gap-2 md:flex-row md:items-center">
                 <Input
                     type="search"
                     value={searchQuery}
                     onChange={(event) => setSearchQuery(event.target.value)}
                     placeholder="Search by name or code"
-                    className="max-w-sm"
+                    className="w-full md:max-w-sm"
                     aria-label="Search staff"
                 />
                 <Select
@@ -258,7 +260,7 @@ const StaffManagement = ({ currentUserId }: StaffManagementProps) => {
                     onChange={(event) =>
                         setStatusFilter(event.target.value as "all" | "active" | "inactive")
                     }
-                    className="w-40"
+                    className="w-full md:w-40"
                     aria-label="Filter by status"
                 >
                     <option value="all">All status</option>
@@ -279,7 +281,60 @@ const StaffManagement = ({ currentUserId }: StaffManagementProps) => {
                 </div>
             ) : null}
 
-            <div className="ui-card relative w-full overflow-x-auto">
+            <div className="space-y-3 md:hidden">
+                {isLoading ? (
+                    <div className="ui-card px-4 py-6 text-center text-sm text-text-muted">
+                        Loading staff...
+                    </div>
+                ) : null}
+
+                {!isLoading && filteredStaff.length === 0 ? (
+                    <div className="ui-card px-4 py-6 text-center text-sm text-text-muted">
+                        No staff members found.
+                    </div>
+                ) : null}
+
+                {!isLoading
+                    ? filteredStaff.map((member) => (
+                          <div key={member.id} className="ui-card p-4">
+                              <div className="mb-2 flex items-start justify-between gap-2">
+                                  <div>
+                                      <p className="font-semibold text-text">{member.name}</p>
+                                      <p className="text-sm text-text-muted">{member.code}</p>
+                                  </div>
+                                  <span
+                                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                                          member.isActive
+                                              ? "bg-emerald-100 text-emerald-700"
+                                              : "bg-red-100 text-red-700"
+                                      }`}
+                                  >
+                                      {member.isActive ? "Active" : "Inactive"}
+                                  </span>
+                              </div>
+                              <div className="space-y-1 text-sm text-text-muted">
+                                  <p>Role: {member.isAdmin ? "Admin" : "Staff"}</p>
+                                  <p>Created: {formatDate(member.createdAt)}</p>
+                              </div>
+                              <div className="mt-3 flex flex-wrap gap-2">
+                                  <Button variant="secondary" size="sm" onClick={() => openEditModal(member)}>
+                                      Edit
+                                  </Button>
+                                  <Button
+                                      variant={member.isActive ? "ghost" : "secondary"}
+                                      size="sm"
+                                      onClick={() => handleToggleActive(member)}
+                                      disabled={isStatusSubmitting || (member.id === currentUserId && member.isActive)}
+                                  >
+                                      {member.isActive ? "Deactivate" : "Reactivate"}
+                                  </Button>
+                              </div>
+                          </div>
+                      ))
+                    : null}
+            </div>
+
+            <div className="relative hidden w-full overflow-x-auto md:block ui-card">
                 <table className="w-full table-auto text-sm">
                     <thead className="rounded-base border-b border-border bg-surface-muted text-sm text-text">
                         <tr>

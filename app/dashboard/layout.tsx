@@ -11,11 +11,9 @@ const Layout = async ({ children }: { children: ReactNode }) => {
         redirect("/login");
     }
     return (
-        <div className="grid grid-cols-12 bg-surface">
-            <div className="col-span-2">
-                <Navbar isAdmin={session.isAdmin} />
-            </div>
-            <div className="col-span-10 p-10">
+        <div className="min-h-screen bg-surface md:grid md:grid-cols-[16rem_1fr]">
+            <Navbar isAdmin={session.isAdmin} />
+            <div className="p-4 md:p-8 lg:p-10">
                 <BoardersProvider>{children}</BoardersProvider>
             </div>
         </div>

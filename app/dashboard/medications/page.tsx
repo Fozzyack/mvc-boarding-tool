@@ -171,7 +171,82 @@ const MedicationsPage = () => {
                 </div>
             </div>
 
-            <div className="ui-card overflow-hidden">
+            <div className="space-y-3 md:hidden">
+                {queue.length === 0 ? (
+                    <div className="ui-card px-4 py-6 text-center text-sm text-text-muted">{emptyStateMessage}</div>
+                ) : (
+                    queue.map((item) => {
+                        const canMarkGiven =
+                            item.status === "due_now" ||
+                            item.status === "due_soon" ||
+                            item.status === "overdue" ||
+                            item.status === "scheduled";
+
+                        return (
+                            <div key={`${item.boarderId}-${item.medication.id}`} className="ui-card p-4">
+                                <div className="mb-2 flex items-start justify-between gap-2">
+                                    <div>
+                                        <p className="font-semibold text-text">{item.boarderName}</p>
+                                        <p className="text-sm text-text-muted">
+                                            {item.medication.name} · {item.medication.dosage}
+                                        </p>
+                                    </div>
+                                    <MedicationStatusBadge status={item.status} />
+                                </div>
+                                <div className="space-y-1 text-sm text-text-muted">
+                                    <p>Timing: {getMedicationTimingLabel(item.medication)}</p>
+                                    <p>Owner: {item.ownerName || "N/A"}</p>
+                                </div>
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                    <Button
+                                        size="sm"
+                                        onClick={() =>
+                                            setPendingAction({
+                                                medicationId: item.medication.id,
+                                                medicationName: item.medication.name,
+                                                actionType: "administered",
+                                            })
+                                        }
+                                        disabled={!canMarkGiven || updatingMedicationId === item.medication.id}
+                                    >
+                                        {updatingMedicationId === item.medication.id ? "Saving..." : "Mark given"}
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="secondary"
+                                        onClick={() =>
+                                            setPendingAction({
+                                                medicationId: item.medication.id,
+                                                medicationName: item.medication.name,
+                                                actionType: "skipped",
+                                            })
+                                        }
+                                        disabled={!canMarkGiven || updatingMedicationId === item.medication.id}
+                                    >
+                                        Skip
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        onClick={() =>
+                                            setPendingAction({
+                                                medicationId: item.medication.id,
+                                                medicationName: item.medication.name,
+                                                actionType: "missed",
+                                            })
+                                        }
+                                        disabled={!canMarkGiven || updatingMedicationId === item.medication.id}
+                                    >
+                                        Missed
+                                    </Button>
+                                </div>
+                            </div>
+                        );
+                    })
+                )}
+            </div>
+
+            <div className="hidden overflow-x-auto md:block ui-card">
                 <table className="w-full table-auto text-sm">
                     <thead className="border-b border-border bg-surface-muted text-text">
                         <tr>

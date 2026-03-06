@@ -63,7 +63,7 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="min-h-screen w-full flex flex-col items-center justify-center md:grid md:grid-cols-2">
+        <div className="flex min-h-screen w-full flex-col items-center justify-center px-4 py-8 md:grid md:grid-cols-2 md:px-0 md:py-0">
             <div className="hidden md:flex flex-col justify-between bg-emerald-200 h-full p-12">
                 <div className="space-y-4">
                     <h1 className="text-4xl font-bold text-emerald-800">
@@ -136,10 +136,10 @@ const LoginPage = () => {
                     </ul>
                 </div>
             </div>
-            <div className="center-within">
+            <div className="center-within w-full">
                 <form
                     onSubmit={handleLogin}
-                    className=" relative p-12 bg-white shadow-xl border border-slate-300 rounded-3xl flex flex-col space-y-4 w-100"
+                    className="relative flex w-full max-w-md flex-col space-y-4 rounded-3xl border border-slate-300 bg-white p-6 shadow-xl sm:p-8 lg:p-12"
                 >
                     <h4>Welcome!</h4>
                     <div className="space-y-1">
