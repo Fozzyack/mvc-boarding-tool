@@ -11,7 +11,7 @@ import type {
     MedicationLogAction,
 } from "@/types";
 import getBackendUrl from "@/utils/getBackendUrl";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const STATUS_FILTERS: Array<{ label: string; value: CalendarMedicationStatus | "all" }> = [
     { label: "All statuses", value: "all" },
@@ -117,10 +117,13 @@ const CalendarPage = () => {
     const [medicationEvents, setMedicationEvents] = useState<CalendarMedicationEvent[]>([]);
     const [updatingMedicationId, setUpdatingMedicationId] = useState<string | null>(null);
     const [pendingAction, setPendingAction] = useState<PendingMedicationAction | null>(null);
+    const latestRequestIdRef = useRef(0);
 
     const monthGrid = useMemo(() => buildMonthGrid(currentMonth), [currentMonth]);
 
     const fetchCalendarData = useCallback(async () => {
+        const localRequestId = latestRequestIdRef.current + 1;
+        latestRequestIdRef.current = localRequestId;
         const from = formatDateKey(monthGrid[0]);
         const to = formatDateKey(monthGrid[monthGrid.length - 1]);
 
@@ -130,6 +133,10 @@ const CalendarPage = () => {
         try {
             const response = await fetch(`${getBackendUrl()}/api/calendar?from=${from}&to=${to}`);
             const data = (await response.json()) as CalendarResponsePayload | { msg?: string };
+
+            if (latestRequestIdRef.current !== localRequestId) {
+                return;
+            }
 
             if (!response.ok) {
                 const message = "msg" in data && data.msg ? data.msg : "Failed to load calendar data.";
@@ -141,10 +148,15 @@ const CalendarPage = () => {
             setStays(payload.stays || []);
             setMedicationEvents(payload.medicationEvents || []);
         } catch (error) {
+            if (latestRequestIdRef.current !== localRequestId) {
+                return;
+            }
             console.error(error);
             setErrorMessage("Failed to load calendar data.");
         } finally {
-            setIsLoading(false);
+            if (latestRequestIdRef.current === localRequestId) {
+                setIsLoading(false);
+            }
         }
     }, [monthGrid]);
 

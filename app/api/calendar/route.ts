@@ -21,9 +21,21 @@ const parseDateOnly = (value: string | null): Date | null => {
     }
 
     const [year, month, day] = value.split("-").map(Number);
+    if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day)) {
+        return null;
+    }
+
     const parsed = new Date(year, month - 1, day);
 
     if (Number.isNaN(parsed.getTime())) {
+        return null;
+    }
+
+    if (
+        parsed.getFullYear() !== year ||
+        parsed.getMonth() !== month - 1 ||
+        parsed.getDate() !== day
+    ) {
         return null;
     }
 
@@ -221,196 +233,234 @@ export const GET = async (req: NextRequest) => {
     const fromDateString = formatDateOnly(fromDay);
     const toDateString = formatDateOnly(toDay);
 
-    const boarders = await db
-        .select({
-            id: boardersTable.id,
-            name: boardersTable.name,
-            ownerName: boardersTable.ownerName,
-            startDate: boardersTable.startDate,
-            endDate: boardersTable.endDate,
-        })
-        .from(boardersTable)
-        .where(
-            and(
-                eq(boardersTable.organisationId, session.organisationId),
-                eq(boardersTable.isActive, true),
-                lte(boardersTable.startDate, toDateString),
-                gte(boardersTable.endDate, fromDateString),
-            ),
-        );
+    try {
+        const boarders = await db
+            .select({
+                id: boardersTable.id,
+                name: boardersTable.name,
+                ownerName: boardersTable.ownerName,
+                startDate: boardersTable.startDate,
+                endDate: boardersTable.endDate,
+            })
+            .from(boardersTable)
+            .where(
+                and(
+                    eq(boardersTable.organisationId, session.organisationId),
+                    eq(boardersTable.isActive, true),
+                    lte(boardersTable.startDate, toDateString),
+                    gte(boardersTable.endDate, fromDateString),
+                ),
+            );
 
-    const stays: CalendarStay[] = boarders.map((boarder) => ({
-        boarderId: boarder.id,
-        boarderName: boarder.name,
-        ownerName: boarder.ownerName || null,
-        startDate: boarder.startDate,
-        endDate: boarder.endDate,
-    }));
+        const stays: CalendarStay[] = boarders.map((boarder) => ({
+            boarderId: boarder.id,
+            boarderName: boarder.name,
+            ownerName: boarder.ownerName || null,
+            startDate: boarder.startDate,
+            endDate: boarder.endDate,
+        }));
 
-    const medications = await db
-        .select({
-            id: medicationTable.id,
-            boarderId: medicationTable.boarderId,
-            boarderName: boardersTable.name,
-            boarderEndDate: boardersTable.endDate,
-            ownerName: boardersTable.ownerName,
-            medicationName: medicationTable.name,
-            dosage: medicationTable.dosage,
-            scheduleType: medicationTable.scheduleType,
-            intervalDays: medicationTable.intervalDays,
-            timingType: medicationTable.timingType,
-            administrationTime: medicationTable.administrationTime,
-            daySlot: medicationTable.daySlot,
-            startDate: medicationTable.startDate,
-            endDate: medicationTable.endDate,
-        })
-        .from(medicationTable)
-        .innerJoin(boardersTable, eq(medicationTable.boarderId, boardersTable.id))
-        .where(
-            and(
-                eq(medicationTable.organisationId, session.organisationId),
-                eq(medicationTable.isActive, true),
-                eq(boardersTable.isActive, true),
-                lte(medicationTable.startDate, toDateString),
-                or(gte(medicationTable.endDate, fromDateString), isNull(medicationTable.endDate)),
-            ),
-        );
+        const medications = await db
+            .select({
+                id: medicationTable.id,
+                boarderId: medicationTable.boarderId,
+                boarderName: boardersTable.name,
+                boarderEndDate: boardersTable.endDate,
+                ownerName: boardersTable.ownerName,
+                medicationName: medicationTable.name,
+                dosage: medicationTable.dosage,
+                scheduleType: medicationTable.scheduleType,
+                intervalDays: medicationTable.intervalDays,
+                timingType: medicationTable.timingType,
+                administrationTime: medicationTable.administrationTime,
+                daySlot: medicationTable.daySlot,
+                startDate: medicationTable.startDate,
+                endDate: medicationTable.endDate,
+            })
+            .from(medicationTable)
+            .innerJoin(boardersTable, eq(medicationTable.boarderId, boardersTable.id))
+            .where(
+                and(
+                    eq(medicationTable.organisationId, session.organisationId),
+                    eq(medicationTable.isActive, true),
+                    eq(boardersTable.isActive, true),
+                    lte(medicationTable.startDate, toDateString),
+                    or(gte(medicationTable.endDate, fromDateString), isNull(medicationTable.endDate)),
+                ),
+            );
 
-    const medicationIds = medications.map((medication) => medication.id);
-    const logs = medicationIds.length
-        ? await db
-              .select({
-                  medicationId: medicationAdministrationLogTable.medicationId,
-                  actionType: medicationAdministrationLogTable.actionType,
-                  scheduledFor: medicationAdministrationLogTable.scheduledFor,
-              })
-              .from(medicationAdministrationLogTable)
-              .where(
-                  and(
-                      eq(medicationAdministrationLogTable.organisationId, session.organisationId),
-                      inArray(medicationAdministrationLogTable.medicationId, medicationIds),
-                      gte(
-                          medicationAdministrationLogTable.scheduledFor,
-                          buildDateTime(fromDay, 0, 0),
+        const medicationIds = medications.map((medication) => medication.id);
+        const logs = medicationIds.length
+            ? await db
+                  .select({
+                      medicationId: medicationAdministrationLogTable.medicationId,
+                      actionType: medicationAdministrationLogTable.actionType,
+                      scheduledFor: medicationAdministrationLogTable.scheduledFor,
+                  })
+                  .from(medicationAdministrationLogTable)
+                  .where(
+                      and(
+                          eq(medicationAdministrationLogTable.organisationId, session.organisationId),
+                          inArray(medicationAdministrationLogTable.medicationId, medicationIds),
+                          gte(
+                              medicationAdministrationLogTable.scheduledFor,
+                              buildDateTime(fromDay, 0, 0),
+                          ),
+                          lte(
+                              medicationAdministrationLogTable.scheduledFor,
+                              buildDateTime(toDay, 23, 59),
+                          ),
                       ),
-                      lte(
-                          medicationAdministrationLogTable.scheduledFor,
-                          buildDateTime(toDay, 23, 59),
-                      ),
-                  ),
-              )
-        : [];
+                  )
+            : [];
 
-    const logsByMedication = new Map<
-        string,
-        Array<{ actionType: "administered" | "skipped" | "missed"; scheduledFor: Date }>
-    >();
+        const logsByMedication = new Map<
+            string,
+            Array<{ actionType: "administered" | "skipped" | "missed"; scheduledFor: Date }>
+        >();
 
-    for (const log of logs) {
-        const logTime = toTimestamp(log.scheduledFor);
-        if (Number.isNaN(logTime.getTime())) {
-            continue;
-        }
-
-        const actionType = log.actionType as "administered" | "skipped" | "missed";
-        const existing = logsByMedication.get(log.medicationId) || [];
-        existing.push({
-            actionType,
-            scheduledFor: logTime,
-        });
-        logsByMedication.set(log.medicationId, existing);
-    }
-
-    const now = new Date();
-    const medicationEvents: CalendarMedicationEvent[] = [];
-    for (const medication of medications) {
-        const timing = getScheduledClock(
-            medication.timingType,
-            medication.administrationTime,
-            medication.daySlot,
-        );
-        const timingLabel = formatTimingLabel(
-            medication.timingType,
-            medication.administrationTime,
-            medication.daySlot,
-        );
-        const startDay = parseDateOnly(medication.startDate);
-        const medicationEndDate = medication.endDate
-            ? parseDateOnly(medication.endDate)
-            : null;
-        const boarderEndDate = parseDateOnly(medication.boarderEndDate);
-
-        if (!timing || !timingLabel || !startDay || !boarderEndDate) {
-            continue;
-        }
-
-        let untilDay = toDay;
-        if (medicationEndDate && medicationEndDate < untilDay) {
-            untilDay = medicationEndDate;
-        }
-        if (boarderEndDate < untilDay) {
-            untilDay = boarderEndDate;
-        }
-
-        if (startDay > untilDay) {
-            continue;
-        }
-
-        const days: Date[] = [];
-        if (medication.scheduleType === "one_off") {
-            if (startDay >= fromDay && startDay <= untilDay) {
-                days.push(startDay);
-            }
-        } else if (medication.scheduleType === "recurring") {
-            if (!medication.intervalDays || medication.intervalDays < 1) {
+        for (const log of logs) {
+            const logTime = toTimestamp(log.scheduledFor);
+            if (Number.isNaN(logTime.getTime())) {
                 continue;
             }
 
-            days.push(...expandRecurringDays(startDay, medication.intervalDays, fromDay, untilDay));
-        } else {
-            continue;
+            const actionType = log.actionType as "administered" | "skipped" | "missed";
+            const existing = logsByMedication.get(log.medicationId) || [];
+            existing.push({
+                actionType,
+                scheduledFor: logTime,
+            });
+            logsByMedication.set(log.medicationId, existing);
         }
 
-        const medicationLogs = logsByMedication.get(medication.id) || [];
-        for (const day of days) {
-            const scheduledFor = buildDateTime(day, timing.hour, timing.minute);
-            const matchedAction = getMatchedLogAction(medicationLogs, scheduledFor);
+        const now = new Date();
+        const medicationEvents: CalendarMedicationEvent[] = [];
+        for (const medication of medications) {
+            const timing = getScheduledClock(
+                medication.timingType,
+                medication.administrationTime,
+                medication.daySlot,
+            );
+            const timingLabel = formatTimingLabel(
+                medication.timingType,
+                medication.administrationTime,
+                medication.daySlot,
+            );
+            const startDay = parseDateOnly(medication.startDate);
+            const medicationEndDate = medication.endDate
+                ? parseDateOnly(medication.endDate)
+                : null;
+            const boarderEndDate = parseDateOnly(medication.boarderEndDate);
 
-            let status: CalendarMedicationStatus;
-            if (matchedAction === "administered") {
-                status = "completed";
-            } else if (matchedAction === "skipped") {
-                status = "skipped";
-            } else if (matchedAction === "missed") {
-                status = "missed";
-            } else {
-                status = classifyMedicationStatus(scheduledFor, now);
+            if (!timing) {
+                return NextResponse.json(
+                    { msg: `Invalid medication schedule timing for medication ${medication.id}` },
+                    { status: 422 },
+                );
             }
 
-            medicationEvents.push({
-                id: `${medication.id}-${scheduledFor.toISOString()}`,
-                medicationId: medication.id,
-                boarderId: medication.boarderId,
-                boarderName: medication.boarderName,
-                ownerName: medication.ownerName,
-                medicationName: medication.medicationName,
-                dosage: medication.dosage,
-                scheduledFor: scheduledFor.toISOString(),
-                status,
-                timingLabel,
-                scheduleLabel: getScheduleLabel(medication.scheduleType, medication.intervalDays),
-            });
+            if (!timingLabel) {
+                return NextResponse.json(
+                    { msg: `Invalid medication timing label for medication ${medication.id}` },
+                    { status: 422 },
+                );
+            }
+
+            if (!startDay) {
+                return NextResponse.json(
+                    { msg: `Invalid medication start date for medication ${medication.id}` },
+                    { status: 422 },
+                );
+            }
+
+            if (!boarderEndDate) {
+                return NextResponse.json(
+                    { msg: `Invalid boarder end date for medication ${medication.id}` },
+                    { status: 422 },
+                );
+            }
+
+            let untilDay = toDay;
+            if (medicationEndDate && medicationEndDate < untilDay) {
+                untilDay = medicationEndDate;
+            }
+            if (boarderEndDate < untilDay) {
+                untilDay = boarderEndDate;
+            }
+
+            if (startDay > untilDay) {
+                continue;
+            }
+
+            const days: Date[] = [];
+            if (medication.scheduleType === "one_off") {
+                if (startDay >= fromDay && startDay <= untilDay) {
+                    days.push(startDay);
+                }
+            } else if (medication.scheduleType === "recurring") {
+                if (!medication.intervalDays || medication.intervalDays < 1) {
+                    return NextResponse.json(
+                        { msg: `Invalid recurring interval for medication ${medication.id}` },
+                        { status: 422 },
+                    );
+                }
+
+                days.push(...expandRecurringDays(startDay, medication.intervalDays, fromDay, untilDay));
+            } else {
+                return NextResponse.json(
+                    { msg: `Invalid medication schedule type for medication ${medication.id}` },
+                    { status: 422 },
+                );
+            }
+
+            const medicationLogs = logsByMedication.get(medication.id) || [];
+            for (const day of days) {
+                const scheduledFor = buildDateTime(day, timing.hour, timing.minute);
+                const matchedAction = getMatchedLogAction(medicationLogs, scheduledFor);
+
+                let status: CalendarMedicationStatus;
+                if (matchedAction === "administered") {
+                    status = "completed";
+                } else if (matchedAction === "skipped") {
+                    status = "skipped";
+                } else if (matchedAction === "missed") {
+                    status = "missed";
+                } else {
+                    status = classifyMedicationStatus(scheduledFor, now);
+                }
+
+                medicationEvents.push({
+                    id: `${medication.id}-${scheduledFor.toISOString()}`,
+                    medicationId: medication.id,
+                    boarderId: medication.boarderId,
+                    boarderName: medication.boarderName,
+                    ownerName: medication.ownerName,
+                    medicationName: medication.medicationName,
+                    dosage: medication.dosage,
+                    scheduledFor: scheduledFor.toISOString(),
+                    status,
+                    timingLabel,
+                    scheduleLabel: getScheduleLabel(medication.scheduleType, medication.intervalDays),
+                });
+            }
         }
+
+        medicationEvents.sort((left, right) => {
+            return new Date(left.scheduledFor).getTime() - new Date(right.scheduledFor).getTime();
+        });
+
+        return NextResponse.json({
+            from: fromDateString,
+            to: toDateString,
+            stays,
+            medicationEvents,
+        });
+    } catch (error) {
+        console.error("Failed to build calendar response", error);
+        return NextResponse.json(
+            { msg: "Failed to load calendar data" },
+            { status: 500 },
+        );
     }
-
-    medicationEvents.sort((left, right) => {
-        return new Date(left.scheduledFor).getTime() - new Date(right.scheduledFor).getTime();
-    });
-
-    return NextResponse.json({
-        from: fromDateString,
-        to: toDateString,
-        stays,
-        medicationEvents,
-    });
 };
