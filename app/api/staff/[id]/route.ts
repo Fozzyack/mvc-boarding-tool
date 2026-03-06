@@ -167,24 +167,45 @@ export const PATCH = async (
         }
 
         if (isReducingAdminCoverage) {
-            const [countRow] = await db
-                .select({ count: sql<number>`count(*)` })
-                .from(usersTable)
-                .where(
-                    and(
-                        eq(usersTable.organisationId, auth.context.organisationId),
-                        eq(usersTable.isAdmin, true),
-                        eq(usersTable.isActive, true),
-                    ),
-                );
+            const [updatedUser] = await db
+                .transaction(async (tx) => {
+                    const [countRow] = await tx
+                        .select({ count: sql<number>`count(*)` })
+                        .from(usersTable)
+                        .where(
+                            and(
+                                eq(usersTable.organisationId, auth.context.organisationId),
+                                eq(usersTable.isAdmin, true),
+                                eq(usersTable.isActive, true),
+                            ),
+                        );
 
-            const activeAdminCount = Number(countRow?.count ?? 0);
-            if (activeAdminCount <= 1) {
-                return NextResponse.json(
-                    { msg: "At least one active admin is required" },
-                    { status: 400 },
-                );
-            }
+                    const activeAdminCount = Number(countRow?.count ?? 0);
+                    if (activeAdminCount <= 1) {
+                        throw new Error("At least one active admin is required");
+                    }
+
+                    return tx
+                        .update(usersTable)
+                        .set(updates)
+                        .where(
+                            and(
+                                eq(usersTable.id, staffId),
+                                eq(usersTable.organisationId, auth.context.organisationId),
+                            ),
+                        )
+                        .returning({
+                            id: usersTable.id,
+                            name: usersTable.name,
+                            code: usersTable.code,
+                            isAdmin: usersTable.isAdmin,
+                            isActive: usersTable.isActive,
+                            createdAt: usersTable.createdAt,
+                            updatedAt: usersTable.updatedAt,
+                        });
+                });
+
+            return NextResponse.json({ msg: "Success", staff: updatedUser });
         }
 
         const [updatedUser] = await db
