@@ -1,197 +1,139 @@
 # MVC Boarding Tool
 
-A digital boarding management system designed for veterinary clinic nurses to track dogs during their stay. Eliminate paper-based tracking with a streamlined, intuitive interface.
+Veterinary boarding management system built with Next.js, TypeScript, Drizzle ORM, and PostgreSQL.
 
-## Features
+It helps clinic teams manage boarders, track medication schedules, and monitor day-to-day operations from a shared dashboard.
 
-- **Dog Registration**: Quickly add new boarding dogs with owner information and contact details
-- **Status Tracking**: Monitor each dog's current status (checked in, feeding, walking, ready for pickup, etc.)
-- **Activity Logging**: Record feeding times, walks, medications, and other care activities
-- **Daily Schedule**: View and manage daily tasks for all boarded dogs
-- **Search & Filter**: Quickly find specific dogs by name or owner
-- **Real-time Updates**: Keep all staff synchronized with live status changes
-- **Secure Authentication**: JWT-based auth with bcrypt password hashing
+## Core Features
+
+- Boarder management (animal details, owner details, stay dates)
+- Medication scheduling (recurring and one-off)
+- Medication status tracking (due now, due soon, overdue, completed, skipped, missed)
+- Dashboard views for boarders and medication queue
+- Calendar API and calendar UI route for operational scheduling
+- Authentication with JWT cookies and role-aware navigation
 
 ## Tech Stack
 
-- **Framework**: Next.js 16 (App Router)
-- **Language**: TypeScript 5
-- **Styling**: Tailwind CSS 4
-- **Database**: PostgreSQL with Drizzle ORM
-- **Authentication**: JWT (jose) + bcrypt
+- Next.js 16 (App Router)
+- TypeScript 5 (strict mode)
+- Tailwind CSS 4
+- Drizzle ORM + drizzle-kit
+- PostgreSQL (Docker-friendly local setup)
+- jose + bcrypt for authentication
 
-## Getting Started
+## Prerequisites
 
-### Prerequisites
+- Node.js 20+
+- npm
+- Docker + Docker Compose
 
-- Node.js 18.x or higher
-- npm, yarn, pnpm, or bun
-- Docker (for PostgreSQL)
-
-### Installation
+## Quick Start
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-
-# Navigate to project directory
-cd mvc-boarding-tool
-
-# Install dependencies
+# 1) Install dependencies
 npm install
 
-# Start the PostgreSQL database
+# 2) Start local Postgres
 docker-compose up -d
 
-# Push schema changes to database
+# 3) Configure env
+cp .env.example .env
+
+# 4) Push schema to database (dev)
 npx drizzle-kit push
 
-# Start development server
+# 5) Start app
 npm run dev
 ```
 
-The application will be available at `http://localhost:3000`.
-
-### Database Commands
-
-```bash
-# Start PostgreSQL via Docker
-docker-compose up -d
-
-# Push schema changes to database
-npx drizzle-kit push
-
-# Generate a new migration
-npx drizzle-kit generate
-
-# Run migrations
-npx drizzle-kit migrate
-
-# Open Drizzle Studio GUI
-npx drizzle-kit studio
-```
-
-### Generate Password Hash for Testing
-
-Used if you want to quickly generate a password (if a new user needs to be created manually).
-```bash
-# With default password (password123)
-npx tsx scripts/saltPassword.ts
-
-# With custom password
-npx tsx scripts/saltPassword.ts "mysecretpassword"
-```
-
-## Project Structure
-
-```
-app/                    # Next.js App Router pages and layouts
-  (routes)/             # Route groups
-  layout.tsx            # Root layout
-  page.tsx              # Home page
-  login/                # Login page
-  dashboard/            # Protected dashboard routes
-  api/                  # API route handlers
-components/             # Reusable React components
-  ui/                   # Generic UI components
-  features/             # Feature-specific components
-constants/              # App-wide constants
-hooks/                  # Custom React hooks
-utils/                  # Utility functions
-  db/                   # Database schema and connection
-    schema.ts
-    drizzle.ts
-    getDbConnString.ts
-  auth/                 # Authentication utilities
-    auth.ts             # JWT create/verify functions
-scripts/                # Standalone scripts
-  saltPassword.ts       # Password hash generator
-middleware.ts           # Next.js middleware for auth
-drizzle.config.ts       # Drizzle configuration
-```
-
-## Authentication
-
-The app uses JWT-based authentication with HTTP-only cookies.
-
-- **Token cookie name**: `barkboard`
-- **JWT secret**: Set via `JWT_SECRET_KEY` in `.env`
-- **Password hashing**: bcrypt with salt rounds of 10
-
-### Protected Routes
-
-Routes under `/dashboard` require authentication via middleware. Unauthorized users are redirected to `/login`.
+App runs at `http://localhost:3000`.
 
 ## Environment Variables
 
-Create a `.env` file in the root directory:
+Create `.env` in the repository root.
 
 ```env
-# PostgreSQL connection string (from docker-compose)
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/mvc_boarding"
-
-# JWT secret key (generate a strong random string)
-JWT_SECRET_KEY="your-secret-key-here"
-
-# Backend URL for API requests (development)
+JWT_SECRET_KEY="replace-with-a-strong-random-secret"
 BACKEND_URL="http://localhost:3000"
+
+# Optional seed script values
+TEST_ORGANISATION_NAME="Demo Vet"
+TEST_ORGANISATION_EMAIL="demo@example.com"
+TEST_ORGANISATION_CODE="DEMO"
+TEST_USER_NAME="Admin"
+TEST_USER_PASSWORD="password123"
+TEST_USER_CODE="admin"
 ```
 
-## Code Quality
+## Common Commands
 
 ```bash
-# Run ESLint
+# Development
+npm run dev
+npm run build
+npm run start
+
+# Quality
 npm run lint
-
-# Type-check without emitting
 npx tsc --noEmit
-```
 
-## Learn More
-
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Drizzle Documentation](https://orm.drizzle.team/docs)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
-- [jose (JWT)](https://github.com/panva/jose)
-- [bcrypt](https://github.com/kelektiv/node.bcrypt.js)
-```
-
-The application will be available at `http://localhost:3000`.
-
-### Database Commands
-
-```bash
-# Start PostgreSQL via Docker
-docker-compose up -d
-
-# Push schema changes to database
+# Drizzle
 npx drizzle-kit push
-
-# Generate a new migration
 npx drizzle-kit generate
-
-# Open Drizzle Studio GUI
+npx drizzle-kit migrate
 npx drizzle-kit studio
 ```
 
+## Optional Local Data Seeding
+
+```bash
+# Seed sample org, user, boarders, and medications
+npx tsx scripts/seedDatabase.ts
+
+# Clear seeded data
+npx tsx scripts/seedDatabase.ts delete
+```
+
+## Main Routes
+
+- `/` landing page
+- `/login` authentication
+- `/dashboard` boarding overview
+- `/dashboard/medications` shift medication queue
+- `/dashboard/calendar` calendar view
+
+## API Routes
+
+- `POST /api/login`
+- `POST /api/logout`
+- `GET, POST /api/boarders`
+- `POST /api/medications`
+- `PATCH /api/medications/:id/administer`
+- `GET /api/calendar?from=YYYY-MM-DD&to=YYYY-MM-DD`
+
 ## Project Structure
 
-```
-app/                    # Next.js App Router pages and layouts
-  layout.tsx            # Root layout
-  page.tsx              # Home page
-  login/                # Login route
-components/             # Reusable React components
-utils/db/               # Database schema and connection
-  schema.ts
+```text
+app/
+  api/
+  dashboard/
+  login/
+components/
+  medications/
+  ui/
+contexts/
+db/
   drizzle.ts
-  getDbConnString.ts
-drizzle.config.ts       # Drizzle configuration
+  schema.ts
+scripts/
+types/
+utils/
+drizzle-migrations/
 ```
 
+## Notes
 
-## Learn More
-
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Drizzle Documentation](https://orm.drizzle.team/docs)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- Use `npx drizzle-kit migrate` when adding migration files.
+- Medication scheduling invariants are enforced in API validation and expected by the calendar/queue logic.
