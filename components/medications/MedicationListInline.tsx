@@ -15,7 +15,7 @@ import getMedicationTimingLabel from "@/utils/medications/getMedicationTimingLab
 import { useState } from "react";
 
 const STATUS_CARD_STYLE: Record<MedicationStatus, string> = {
-    due_now: "border-red-200 bg-gradient-to-r from-red-50 to-white",
+    due_now: "border-violet-200 bg-gradient-to-r from-violet-50 to-white",
     due_soon: "border-amber-200 bg-gradient-to-r from-amber-50 to-white",
     scheduled:
         "border-sky-300 border-dashed bg-gradient-to-r from-sky-50 via-cyan-50 to-white shadow-[inset_0_0_0_1px_rgba(14,165,233,0.1)]",
