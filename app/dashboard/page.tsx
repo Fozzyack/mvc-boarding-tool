@@ -13,14 +13,14 @@ const DashboardPage = async () => {
     }
     return (
         <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div>
                     <h2 className="text-brand">Boarding Overview</h2>
                     <p className="text-brand">
                         Welcome back {session.name}. Here is what is happening today.
                     </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2 md:ml-auto md:justify-end">
                     <AddMedicationModal />
                     <AddBoarder />
                 </div>

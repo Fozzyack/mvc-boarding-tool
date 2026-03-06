@@ -94,7 +94,7 @@ const BoardersTable = () => {
 
     return (
         <div className="space-y-3">
-            <div className="max-w-sm">
+            <div className="w-full md:max-w-sm">
                 <Input
                     value={searchQuery}
                     onChange={(event) => setSearchQuery(event.target.value)}
@@ -103,7 +103,64 @@ const BoardersTable = () => {
                     aria-label="Search boarders"
                 />
             </div>
-            <div className="ui-card relative w-full overflow-x-auto">
+
+            <div className="space-y-3 md:hidden">
+                {filteredBoarders.length === 0 ? (
+                    <div className="ui-card px-4 py-6 text-center text-sm text-text-muted">
+                        No boarders match your search.
+                    </div>
+                ) : null}
+                {filteredBoarders.map((boarder) => {
+                    const isExpanded = expandedRowId === boarder.id;
+
+                    return (
+                        <div key={boarder.id} className="ui-card p-4">
+                            <div className="mb-3 flex items-start justify-between gap-2">
+                                <div>
+                                    <p className="text-base font-semibold text-text">{boarder.name}</p>
+                                    <p className="text-xs text-text-muted">
+                                        {boarder.animalType} · {boarder.species || "N/A"}
+                                    </p>
+                                </div>
+                                <span className="text-xs text-text-muted">
+                                    {boarder.weight ? `${boarder.weight} kg` : "N/A"}
+                                </span>
+                            </div>
+
+                            <div className="space-y-1 text-sm text-text-muted">
+                                <p>Owner: {boarder.ownerName || "N/A"}</p>
+                                <p>Phone: {boarder.ownerPhone || "N/A"}</p>
+                            </div>
+
+                            <div className="mt-3 rounded-xl bg-surface-muted/60 p-2">
+                                <MedicationSummary medications={boarder.medications} />
+                            </div>
+
+                            <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={() => toggleRow(boarder.id)}
+                                className="mt-3 w-full"
+                                aria-expanded={isExpanded}
+                                aria-controls={`boarder-medications-mobile-${boarder.id}`}
+                            >
+                                {isExpanded ? "Hide meds" : "View meds"}
+                            </Button>
+
+                            {isExpanded ? (
+                                <div id={`boarder-medications-mobile-${boarder.id}`} className="mt-3">
+                                    <MedicationListInline
+                                        boarderId={boarder.id}
+                                        medications={boarder.medications}
+                                    />
+                                </div>
+                            ) : null}
+                        </div>
+                    );
+                })}
+            </div>
+
+            <div className="relative hidden w-full overflow-x-auto md:block ui-card">
                 <table className="text-sm w-full table-auto">
                     <thead className="rounded-base border-b border-border bg-surface-muted text-sm text-text">
                         <tr>

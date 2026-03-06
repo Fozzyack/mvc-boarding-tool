@@ -282,7 +282,7 @@ const CalendarPage = () => {
                     <h2 className="text-brand">Operations Calendar</h2>
                     <p className="text-text-muted">Unified view of boarder stays and medication tasks.</p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                     <Button variant="secondary" size="sm" onClick={() => setCurrentMonth(addMonths(currentMonth, -1))}>
                         Prev
                     </Button>
@@ -346,71 +346,75 @@ const CalendarPage = () => {
 
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-[2fr_1fr]">
                 <div className="ui-card overflow-hidden">
-                    <div className="grid grid-cols-7 border-b border-border bg-surface-muted text-xs font-semibold uppercase tracking-wide text-text-muted">
-                        {WEEKDAY_NAMES.map((dayName) => (
-                            <div key={dayName} className="px-3 py-2 text-center">
-                                {dayName}
+                    <div className="overflow-x-auto">
+                        <div className="min-w-[40rem]">
+                            <div className="grid grid-cols-7 border-b border-border bg-surface-muted text-xs font-semibold uppercase tracking-wide text-text-muted">
+                                {WEEKDAY_NAMES.map((dayName) => (
+                                    <div key={dayName} className="px-3 py-2 text-center">
+                                        {dayName}
+                                    </div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
-                    {isLoading ? (
-                        <div className="p-8 text-center text-text-muted">Loading calendar...</div>
-                    ) : errorMessage ? (
-                        <div className="p-8 text-center text-red-600">{errorMessage}</div>
-                    ) : (
-                        <div className="grid grid-cols-7">
-                            {monthGrid.map((day) => {
-                                const key = formatDateKey(day);
-                                const summary = cellSummaryByDate.get(key);
-                                const isCurrentMonth = day.getMonth() === currentMonth.getMonth();
-                                const isSelected = key === selectedDateKey;
-                                const isToday = key === formatDateKey(today);
+                            {isLoading ? (
+                                <div className="p-8 text-center text-text-muted">Loading calendar...</div>
+                            ) : errorMessage ? (
+                                <div className="p-8 text-center text-red-600">{errorMessage}</div>
+                            ) : (
+                                <div className="grid grid-cols-7">
+                                    {monthGrid.map((day) => {
+                                        const key = formatDateKey(day);
+                                        const summary = cellSummaryByDate.get(key);
+                                        const isCurrentMonth = day.getMonth() === currentMonth.getMonth();
+                                        const isSelected = key === selectedDateKey;
+                                        const isToday = key === formatDateKey(today);
 
-                                return (
-                                    <button
-                                        key={key}
-                                        type="button"
-                                        onClick={() => setSelectedDate(day)}
-                                        className={`min-h-28 border-b border-r border-border p-2 text-left transition-colors ${
-                                            isSelected ? "bg-brand/10" : "hover:bg-surface-muted/60"
-                                        } ${isCurrentMonth ? "text-text" : "text-text-muted/60"}`}
-                                    >
-                                        <div className="mb-2 flex items-center justify-between">
-                                            <span
-                                                className={`inline-flex size-6 items-center justify-center rounded-full text-xs font-semibold ${
-                                                    isToday ? "bg-brand text-white" : ""
-                                                }`}
+                                        return (
+                                            <button
+                                                key={key}
+                                                type="button"
+                                                onClick={() => setSelectedDate(day)}
+                                                className={`min-h-24 border-b border-r border-border p-2 text-left transition-colors md:min-h-28 ${
+                                                    isSelected ? "bg-brand/10" : "hover:bg-surface-muted/60"
+                                                } ${isCurrentMonth ? "text-text" : "text-text-muted/60"}`}
                                             >
-                                                {day.getDate()}
-                                            </span>
-                                        </div>
-                                        <div className="space-y-1 text-[11px] leading-tight">
-                                            {(viewFilter === "all" || viewFilter === "stays") && summary?.stays ? (
-                                                <p className="rounded bg-slate-100 px-1.5 py-0.5 text-slate-700">
-                                                    {summary.stays} in-house
-                                                </p>
-                                            ) : null}
-                                            {(viewFilter === "all" || viewFilter === "stays") && summary?.arrivals ? (
-                                                <p className="rounded bg-emerald-100 px-1.5 py-0.5 text-emerald-700">
-                                                    {summary.arrivals} arrivals
-                                                </p>
-                                            ) : null}
-                                            {(viewFilter === "all" || viewFilter === "stays") && summary?.departures ? (
-                                                <p className="rounded bg-amber-100 px-1.5 py-0.5 text-amber-700">
-                                                    {summary.departures} departures
-                                                </p>
-                                            ) : null}
-                                            {(viewFilter === "all" || viewFilter === "medications") && summary?.meds ? (
-                                                <p className="rounded bg-violet-100 px-1.5 py-0.5 text-violet-700">
-                                                    {summary.meds} meds
-                                                </p>
-                                            ) : null}
-                                        </div>
-                                    </button>
-                                );
-                            })}
+                                                <div className="mb-2 flex items-center justify-between">
+                                                    <span
+                                                        className={`inline-flex size-6 items-center justify-center rounded-full text-xs font-semibold ${
+                                                            isToday ? "bg-brand text-white" : ""
+                                                        }`}
+                                                    >
+                                                        {day.getDate()}
+                                                    </span>
+                                                </div>
+                                                <div className="space-y-1 text-[11px] leading-tight">
+                                                    {(viewFilter === "all" || viewFilter === "stays") && summary?.stays ? (
+                                                        <p className="rounded bg-slate-100 px-1.5 py-0.5 text-slate-700">
+                                                            {summary.stays} in-house
+                                                        </p>
+                                                    ) : null}
+                                                    {(viewFilter === "all" || viewFilter === "stays") && summary?.arrivals ? (
+                                                        <p className="rounded bg-emerald-100 px-1.5 py-0.5 text-emerald-700">
+                                                            {summary.arrivals} arrivals
+                                                        </p>
+                                                    ) : null}
+                                                    {(viewFilter === "all" || viewFilter === "stays") && summary?.departures ? (
+                                                        <p className="rounded bg-amber-100 px-1.5 py-0.5 text-amber-700">
+                                                            {summary.departures} departures
+                                                        </p>
+                                                    ) : null}
+                                                    {(viewFilter === "all" || viewFilter === "medications") && summary?.meds ? (
+                                                        <p className="rounded bg-violet-100 px-1.5 py-0.5 text-violet-700">
+                                                            {summary.meds} meds
+                                                        </p>
+                                                    ) : null}
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
                 </div>
 
                 <div className="space-y-3">
@@ -462,7 +466,7 @@ const CalendarPage = () => {
                             <div className="flex items-center justify-between">
                                 <h4>Medication Agenda</h4>
                                 <select
-                                    className="rounded-lg border border-border bg-white px-2 py-1 text-xs"
+                                    className="w-full rounded-lg border border-border bg-white px-2 py-1 text-xs sm:w-auto"
                                     value={statusFilter}
                                     onChange={(event) =>
                                         setStatusFilter(event.target.value as CalendarMedicationStatus | "all")
